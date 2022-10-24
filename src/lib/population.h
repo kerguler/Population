@@ -73,9 +73,13 @@ double nbinom_dist_prob(double, double, unsigned int);
 #define ACCTHR 1.0
 
 #define STOP          0
-#define ACC_ERLANG    1
-#define AGE_CONST     2
-#define AGE_GAMMA     3
+#define ACC_FIXED     1
+#define ACC_ERLANG    2
+#define ACC_PASCAL    3
+#define AGE_FIXED     4
+#define AGE_CONST     5
+#define AGE_GAMMA     6
+#define AGE_NBINOM    7
 
 #define ACC_ARBITER   0
 #define AGE_ARBITER   1

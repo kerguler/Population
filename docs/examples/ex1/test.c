@@ -42,9 +42,10 @@ void run_stoch(int id, char distr, double *par) {
 int main(int attr, char *avec[]) {
     random_init();
 
-    char method = AGE_CONST;
-    //double par[2] = {20.0, 10.0};
-    double par[1] = {1.0/20.0};
+    char method = AGE_NBINOM;
+    double par[2] = {20.0, 10.0};
+    //double par[1] = {1.0/20.0};
+    //double par[1] = {20.0};
 
     run_det(0, method, par);
     int i;

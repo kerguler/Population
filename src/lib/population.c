@@ -86,11 +86,18 @@ double age_hazard_calc(hazard heval, unsigned int d, number q, number k, double 
 /* ----------------------------------------------------------- *\
 \* ----------------------------------------------------------- */
 
+hazpar acc_fixed_pars(double devmn, double devsd) {
+    hazpar hz;
+    hz.k.i = round(devmn);
+    hz.theta = 1.0;
+    hz.stay = TRUE;
+    return hz;
+}
+
 hazpar acc_erlang_pars(double devmn, double devsd) {
     hazpar hz;
-    double kd = 0.0;
     hz.theta = pow(devsd,2) / devmn;
-    kd = devmn / hz.theta;
+    double kd = devmn / hz.theta;
     if (kd != round(kd)) {
         kd = round(kd);
         hz.theta = devmn / kd;
@@ -100,6 +107,31 @@ hazpar acc_erlang_pars(double devmn, double devsd) {
     }
     hz.k.i = (unsigned int)kd;
     hz.stay = TRUE;
+    return hz;
+}
+
+hazpar acc_pascal_pars(double devmn, double devsd) {
+    hazpar hz;
+    hz.theta = devmn / pow(devsd,2);
+    if (hz.theta > 1.0 || hz.theta < 0.0) {
+        fprintf(stderr, "Pascal cannot yield mean=%g and sd=%g\n",devmn,devsd);
+        exit(1);
+    }
+    double kd = devmn * hz.theta / (1.0 - hz.theta);
+    if (kd != round(kd)) {
+        kd = round(kd);
+        hz.theta = kd / (devmn + kd);
+    }
+    hz.k.i = (unsigned int)kd;
+    hz.stay = TRUE;
+    return hz;
+}
+
+hazpar age_fixed_pars(double devmn, double devsd) {
+    hazpar hz;
+    hz.k.d = round(devmn);
+    hz.theta = 1.0;
+    hz.stay = FALSE;
     return hz;
 }
 
@@ -119,11 +151,35 @@ hazpar age_gamma_pars(double devmn, double devsd) {
     return hz;
 }
 
+hazpar age_nbinom_pars(double devmn, double devsd) {
+    hazpar hz;
+    hz.theta = devmn / pow(devsd,2);
+    if (hz.theta > 1.0 || hz.theta < 0.0) {
+        fprintf(stderr, "Negative binomial cannot yield mean=%g and sd=%g\n",devmn,devsd);
+        exit(1);
+    }
+    hz.k.d = devmn * hz.theta / (1.0 - hz.theta);
+    hz.stay = FALSE;
+    return hz;
+}
+
 /* ----------------------------------------------------------- *\
 \* ----------------------------------------------------------- */
 
+double acc_fixed_haz(unsigned int i, number k, double theta) {
+    return (double)((double)i >= theta);
+}
+
 double acc_erlang_haz(unsigned int i, number k, double theta) {
     return gsl_cdf_poisson_P(i, ONE/theta);
+}
+
+double acc_pascal_haz(unsigned int i, number k, double theta) {
+    return 1.0 - pow(theta, i + 1);
+}
+
+double age_fixed_haz(unsigned int i, number k, double theta) {
+    return (double)((double)i >= k.d);
 }
 
 double age_const_haz(unsigned int i, number k, double theta) {
@@ -133,6 +189,10 @@ double age_const_haz(unsigned int i, number k, double theta) {
 double age_gamma_haz(unsigned int i, number k, double theta) {
     // TO DO: The problem of overflow should be solved!
     return gsl_cdf_gamma_P((double)i, k.d, theta);
+}
+
+double age_nbinom_haz(unsigned int i, number k, double theta) {
+    return i ? gsl_cdf_negative_binomial_P(i-1, theta, k.d) : 0.0;
 }
 
 /* ----------------------------------------------------------- *\
@@ -225,9 +285,21 @@ population spop2_init(char *arbiters, char stoch) {
     for (i=0; i < pop->nkey; i++) {
         pop->types[i] = arbiters[i];
         switch (arbiters[i]) {
+            case ACC_FIXED:
+                pop->arbiters[i] = arbiter_init(acc_fixed_pars, acc_fixed_haz, acc_hazard_calc, acc_stepper);
+                pop->types[i] = ACC_ARBITER;
+                break;
             case ACC_ERLANG:
                 pop->arbiters[i] = arbiter_init(acc_erlang_pars, acc_erlang_haz, acc_hazard_calc, acc_stepper);
                 pop->types[i] = ACC_ARBITER;
+                break;
+            case ACC_PASCAL:
+                pop->arbiters[i] = arbiter_init(acc_pascal_pars, acc_pascal_haz, acc_hazard_calc, acc_stepper);
+                pop->types[i] = ACC_ARBITER;
+                break;
+            case AGE_FIXED:
+                pop->arbiters[i] = arbiter_init(age_fixed_pars, age_fixed_haz, age_hazard_calc, age_stepper);
+                pop->types[i] = AGE_ARBITER;
                 break;
             case AGE_CONST:
                 pop->arbiters[i] = arbiter_init(age_const_pars, age_const_haz, age_const_calc, age_stepper);
@@ -235,6 +307,10 @@ population spop2_init(char *arbiters, char stoch) {
                 break;
             case AGE_GAMMA:
                 pop->arbiters[i] = arbiter_init(age_gamma_pars, age_gamma_haz, age_hazard_calc, age_stepper);
+                pop->types[i] = AGE_ARBITER;
+                break;
+            case AGE_NBINOM:
+                pop->arbiters[i] = arbiter_init(age_nbinom_pars, age_nbinom_haz, age_hazard_calc, age_stepper);
                 pop->types[i] = AGE_ARBITER;
                 break;
             default:
@@ -327,6 +403,7 @@ void spop2_step(population pop, double *par, number *survived, number *completed
         (*survived) = numZERO;
         // 
         hp = pop->arbiters[i]->fun_pars(par[0],par[1]);
+        // TO DO: This needs to be fixed and made flexible!
         par += 2;
         // 
         if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) continue;
