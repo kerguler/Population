@@ -1,77 +1,55 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "population/population.h"
+#include "population.h"
 
-void test() {
-    char arbiters[3] = {AGE_GAMMA, ACC_ERLANG, STOP};
+void run_det(int id, char distr, double *par) {
+    char arbiters[2] = {distr, STOP};
     population pop = spop2_init(arbiters, DETERMINISTIC);
 
-    number key[2] = {{.i=10}, {.d=0.2}};
+    number key[1] = {numZERO};
     number num = {.d=10.0};
     spop2_add(pop, key, num);
 
-    number keyb[2] = {{.i=5}, {.d=0.2}};
-    number numb = {.d=6.0};
-    spop2_add(pop, keyb, numb);
+    printf("%d,%d,%g,%g\n",id,0,spop2_size(pop).d,0.0);
 
-    number key2[2] = {{.i=20}, {.d=0.01}};
-    number num2 = {.d=5.0};
-    spop2_add(pop, key2, num2);
-
-    spop2_print(pop);
-
-    double h, hz;
-    hazpar hp = pop->arbiters[0]->fun_pars(10.0, 2.0);
-    printf("\nk = %g\ntheta = %g\nstay = %d\n", hp.k.d, hp.theta, hp.stay);
-
-    unsigned int i = 8;
-    h = pop->arbiters[0]->fun_haz(i, hp.k, hp.theta);
-    printf("h = %g\n", h);
-
-    number q = {.i=7};
-    hz = pop->arbiters[0]->fun_calc(pop->arbiters[0]->fun_haz, 1, q, hp.k, hp.theta, key);
-    printf("hz = %g\n", hz);
-
-    number completed[2];
-    double par[4] = {10.0, 2.0, 9.0, 3.0};
-    spop2_step(pop, par, completed, 0);
-
-    spop2_print(pop);
-    printf("Completed: %g %g\n",completed[0].d,completed[1].d);
-
-    spop2_free(&pop);
-
-    number a = {.d=random()};
-    printf("%g %u\n",a.d,a.i);
-    a.i = 0;
-    printf("%g %u\n",a.d,a.i);
+    number sz, cm;
+    int i;
+    for (i=1; i<50; i++) {
+        spop2_step(pop, par, &sz, &cm, 0);
+        printf("%d,%d,%g,%g\n",id,i,sz.d,cm.d);
+    }
 }
 
-void test2() {
-    char arbiters[2] = {ACC_ERLANG, STOP};
+void run_stoch(int id, char distr, double *par) {
+    char arbiters[2] = {distr, STOP};
     population pop = spop2_init(arbiters, STOCHASTIC);
 
-    number key[1] = {{.d=0}};
+    number key[1] = {numZERO};
     number num = {.i=10};
     spop2_add(pop, key, num);
 
-    printf("%d %u\n",0,spop2_size(pop).i);
+    printf("%d,%d,%u,%u\n",id,0,spop2_size(pop).i,0);
 
-    double par[2] = {10.0, 2.0};
+    number sz, cm;
     int i;
-    for (i=1; i<20; i++) {
-        spop2_step(pop, par, 0, 0);
-        printf("%d %u\n",i,spop2_size(pop).i);
+    for (i=1; i<50; i++) {
+        spop2_step(pop, par, &sz, &cm, 0);
+        printf("%d,%d,%u,%u\n",id,i,sz.i,cm.i);
     }
-
-    spop2_print(pop);
 }
 
 int main(int attr, char *avec[]) {
     random_init();
 
-    test2();
+    char method = AGE_CONST;
+    //double par[2] = {20.0, 10.0};
+    double par[1] = {1.0/20.0};
+
+    run_det(0, method, par);
+    int i;
+    for (i=0; i<1000; i++)
+        run_stoch(i+1, method, par);
 
     return 0;
 }

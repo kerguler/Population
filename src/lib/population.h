@@ -94,7 +94,7 @@ typedef union {
   double d;
 } number;
 
-static number sdZERO;
+static number numZERO;
 
 /* ----------------------------------------------------------- *\
  * 
@@ -189,7 +189,7 @@ void spop2_empty(population *);
 number spop2_size(population);
 number spop2_remove(population, number *, double);
 char spop2_add(population, number *, number);
-void spop2_step(population, double *, number *, member *);
+void spop2_step(population, double *, number *, number *, member *);
 void spop2_print(population);
 
 /* ----------------------------------------------------------- *\

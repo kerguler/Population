@@ -107,9 +107,9 @@ hazpar age_const_pars(double devmn, double devsd) {
     hazpar hz;
     hz.k.d = 1.0;
     hz.theta = min(1.0, max(0.0, devmn));
+    hz.stay = FALSE;
     return hz;
 }
-
 
 hazpar age_gamma_pars(double devmn, double devsd) {
     hazpar hz;
@@ -266,7 +266,7 @@ void spop2_empty(population *pop) {
 }
 
 number spop2_size(population pop) {
-    number sz = sdZERO;
+    number sz = numZERO;
     member elm, tmp;
     if (pop->stoch) {
         HASH_ITER(hh, pop->members, elm, tmp) {
@@ -294,14 +294,14 @@ number spop2_remove(population pop, number *key, double frac) {
             qnt->num.d -= ret.d;
         }
         //
-        if (!memcmp(&(qnt->num), &sdZERO, sizeof(number))) {
+        if (!memcmp(&(qnt->num), &numZERO, sizeof(number))) {
             HASH_DEL(pop->members, qnt);
             member_free(qnt);
         }
         //
         return ret;
     }
-    return sdZERO;
+    return numZERO;
 }
 
 char spop2_add(population pop, number *key_raw, number num) {
@@ -311,21 +311,20 @@ char spop2_add(population pop, number *key_raw, number num) {
     return 0;
 }
 
-void spop2_step(population pop, double *par, number *completed, member *poptabledone) {
+void spop2_step(population pop, double *par, number *survived, number *completed, member *poptabledone) {
     int i;
     //
     hazpar hp;
     member elm = NULL, tmp = NULL, elm2 = NULL, tmp2 = NULL, poptablenext = NULL;
     number *q2;
-    number n2 = sdZERO;
+    number n2 = numZERO;
     unsigned int dev;
     double p;
     //
-    if (completed) {
-        for (i=0; i<pop->nkey; i++) completed[i] = sdZERO;
-    }
+    for (i=0; i<pop->nkey; i++) completed[i] = numZERO;
     //
     for (i=0; i < pop->nkey; i++) {
+        (*survived) = numZERO;
         // 
         hp = pop->arbiters[i]->fun_pars(par[0],par[1]);
         par += 2;
@@ -334,9 +333,13 @@ void spop2_step(population pop, double *par, number *completed, member *poptable
         //
         poptablenext = NULL;
         HASH_ITER(hh, pop->members, elm, tmp) {
-            if (!memcmp(&(elm->num),&sdZERO,sizeof(number))) continue;
+            if (!memcmp(&(elm->num),&numZERO,sizeof(number))) continue;
+            if (pop->stoch)
+                (*survived).i += elm->num.i;
+            else
+                (*survived).d += elm->num.d;
             //
-            for (dev=0; memcmp(&(elm->num),&sdZERO,sizeof(number)); ) {
+            for (dev=0; memcmp(&(elm->num),&numZERO,sizeof(number)); ) {
                 q2 = (number *)malloc(pop->nkey * sizeof(number));
                 memcpy(q2, elm->key, pop->nkey * sizeof(number));
                 q2[i] = pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
@@ -344,30 +347,33 @@ void spop2_step(population pop, double *par, number *completed, member *poptable
                 if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) {
                     if (poptabledone) 
                         key_add(&poptabledone[i], q2, elm->num, pop->nkey, pop->stoch);
-                    if (completed) {
-                        if (pop->stoch)
-                            completed[i].i += elm->num.i;
-                        else
-                            completed[i].d += elm->num.d;
+                    if (pop->stoch) {
+                        completed[i].i += elm->num.i;
+                        (*survived).i -= elm->num.i;
+                    } else {
+                        completed[i].d += elm->num.d;
+                        (*survived).d -= elm->num.d;
                     }
-                    elm->num = sdZERO;
+                    elm->num = numZERO;
                 } else {
                     p = pop->arbiters[i]->fun_calc(pop->arbiters[i]->fun_haz, dev, q2[i], hp.k, hp.theta, elm->key);
                     pop->fun_update(p, &(elm->num), &n2);
                     //
                     if (pop->types[i] == AGE_ARBITER) {
-                        if (memcmp(&(elm->num), &sdZERO, sizeof(number)))
+                        if (memcmp(&(elm->num), &numZERO, sizeof(number)))
                             key_add(&poptablenext, q2, elm->num, pop->nkey, pop->stoch); // Developing / surviving population
-                        if (memcmp(&n2, &sdZERO, sizeof(number))) {
-                            if (poptabledone) key_add(&poptabledone[i], q2, n2, pop->nkey, pop->stoch); // Completing process
-                            if (completed) {
-                                if (pop->stoch)
-                                    completed[i].i += n2.i;
-                                else
-                                    completed[i].d += n2.d;
+                        if (memcmp(&n2, &numZERO, sizeof(number))) {
+                            if (poptabledone) 
+                                key_add(&poptabledone[i], q2, n2, pop->nkey, pop->stoch); // Completing process
+                            if (pop->stoch) {
+                                completed[i].i += n2.i;
+                                (*survived).i -= n2.i;
+                            } else {
+                                completed[i].d += n2.d;
+                                (*survived).d -= n2.d;
                             }
                         }
-                    } else if (memcmp(&n2,&sdZERO,sizeof(number)))
+                    } else if (memcmp(&n2,&numZERO,sizeof(number)))
                         key_add(&poptablenext, q2, n2, pop->nkey, pop->stoch); // Developing / surviving population
                     //
                     dev++;

@@ -6,7 +6,7 @@ AM_CFLAGS += $(GLIB_CFLAGS)
 lib_LTLIBRARIES =  libpopulation.la
 
 # The header files to include
-libpopulation_ladir = $(includedir)/population
+libpopulation_ladir = $(includedir)
 
 # The files to add to the library and to the source distribution
 # ---
