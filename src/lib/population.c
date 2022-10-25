@@ -269,6 +269,24 @@ void spop2_print(population pop) {
     }
 }
 
+
+void spop2_printable(population pop, int tm) {
+    member elm, tmp;
+    HASH_ITER(hh, pop->members, elm, tmp) {
+        printf("%d,", tm);
+        int i;
+        for (i = 0; i < pop->nkey; i++)
+            if (pop->types[i] == ACC_ARBITER)
+                printf("%s%g", i ? "," : "", elm->key[i].d);
+            else
+                printf("%s%u", i ? "," : "", elm->key[i].i);
+        if (pop->stoch)
+            printf(",%u\n",elm->num.i);
+        else
+            printf(",%g\n",elm->num.d);
+    }
+}
+
 population spop2_init(char *arbiters, char stoch) {
     int i;
     //

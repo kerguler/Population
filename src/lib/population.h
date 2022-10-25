@@ -61,16 +61,16 @@ double nbinom_dist_prob(double, double, unsigned int);
  * 
 \* ----------------------------------------------------------- */
 
-#define TRUE  1
-#define FALSE 0
+#define TRUE          1
+#define FALSE         0
 
-#define ONE   1.0
-#define ZERO  0.0
+#define ONE           1.0
+#define ZERO          0.0
 
 #define STOCHASTIC    1
 #define DETERMINISTIC 0
 
-#define ACCTHR 1.0
+#define ACCTHR        1.0
 
 #define STOP          0
 #define ACC_FIXED     1
@@ -195,6 +195,7 @@ number spop2_remove(population, number *, double);
 char spop2_add(population, number *, number);
 void spop2_step(population, double *, number *, number *, member *);
 void spop2_print(population);
+void spop2_printable(population, int);
 
 /* ----------------------------------------------------------- *\
  * 
