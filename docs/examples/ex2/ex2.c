@@ -46,7 +46,7 @@ void run_stoch(int did, int id, char distr) {
 }
 
 int main(int attr, char *avec[]) {
-    random_init();
+    spop2_random_init();
 
     char methods[4] = {ACC_ERLANG, ACC_FIXED, AGE_FIXED, AGE_GAMMA};
     char method;

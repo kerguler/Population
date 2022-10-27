@@ -25,7 +25,7 @@ void rng_setup(char*);
 void rng_setup_seed(unsigned int, char*);
 void rng_destroy(void);
 double rng_exponential(const double);
-void random_init();
+void spop2_random_init();
 
 /* ----------------------------------------------------------- *\
  * 
@@ -186,6 +186,8 @@ struct population_st {
     arbiter *arbiters;
     member members;
 };
+
+void spop2_set_eps(double);
 
 population spop2_init(char *, char);
 void spop2_free(population *);

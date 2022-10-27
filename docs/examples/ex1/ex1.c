@@ -40,7 +40,7 @@ void run_stoch(int did, int id, char distr, double *par) {
 }
 
 int main(int attr, char *avec[]) {
-    random_init();
+    spop2_random_init();
 
     char methods[7] = {ACC_ERLANG, ACC_PASCAL, ACC_FIXED, AGE_FIXED, AGE_CONST, AGE_GAMMA, AGE_NBINOM};
     char method;

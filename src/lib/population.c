@@ -13,7 +13,7 @@
 \* ----------------------------------------------------------- */
 
 gsl_rng *RANDOM = 0;
-void random_init() {
+void spop2_random_init() {
     rng_setup("sPop2");
     RANDOM = get_RAND_GSL();
 }
@@ -23,12 +23,12 @@ void random_init() {
 \* ----------------------------------------------------------- */
 
 double POPSIZE_ROUND_EPS = 1e-13;
-void set_eps(double eps) {
+void spop2_set_eps(double eps) {
     POPSIZE_ROUND_EPS = eps;
 }
 
 double popsize_round(double val) {
-    return round(val / POPSIZE_ROUND_EPS) * POPSIZE_ROUND_EPS;
+    return POPSIZE_ROUND_EPS ? round(val / POPSIZE_ROUND_EPS) * POPSIZE_ROUND_EPS : val;
 }
 
 /* ----------------------------------------------------------- *\
@@ -101,9 +101,9 @@ hazpar acc_erlang_pars(double devmn, double devsd) {
     if (kd != round(kd)) {
         kd = round(kd);
         hz.theta = devmn / kd;
-        double m = kd * hz.theta;
-        double s = sqrt(hz.theta * m);
-        fprintf(stderr, "Rounding up k to %g to yield mean=%g and sd=%g\n", kd, m, s);
+        // double m = kd * hz.theta;
+        // double s = sqrt(hz.theta * m);
+        // fprintf(stderr, "Rounding up k to %g to yield mean=%g and sd=%g\n", kd, m, s);
     }
     hz.k.i = (unsigned int)kd;
     hz.stay = TRUE;
@@ -333,6 +333,7 @@ population spop2_init(char *arbiters, char stoch) {
                 break;
             default:
                 fprintf(stderr, "Development time distribution %d not yet implemented\n", arbiters[i]);
+                exit(1);
                 break;
         }
     }
