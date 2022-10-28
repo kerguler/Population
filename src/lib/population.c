@@ -50,7 +50,6 @@ double popsize_round(double val) {
 }
 
 /* ----------------------------------------------------------- *\
- * Stepper routines
 \* ----------------------------------------------------------- */
 
 arbiter arbiter_init(parameters fun_pars, hazard fun_haz, calculator fun_calc, stepper fun_step) {
@@ -67,6 +66,7 @@ void arbiter_free(arbiter *arbiter) {
 }
 
 /* ----------------------------------------------------------- *\
+ * Stepper routines
 \* ----------------------------------------------------------- */
 
 number acc_stepper(number q, unsigned int d, number k) {
@@ -181,6 +181,11 @@ hazpar age_nbinom_pars(double devmn, double devsd) {
     return hz;
 }
 
+hazpar age_custom_pars(double devmn, double devsd) {
+    hazpar hz = {.k=numZERO, .theta=1.0, .stay=FALSE};
+    return hz;
+}
+
 /* ----------------------------------------------------------- *\
 \* ----------------------------------------------------------- */
 
@@ -211,6 +216,10 @@ double age_gamma_haz(unsigned int i, number k, double theta) {
 
 double age_nbinom_haz(unsigned int i, number k, double theta) {
     return i ? gsl_cdf_negative_binomial_P(i-1, theta, k.d) : 0.0;
+}
+
+double age_custom_haz(unsigned int i, number k, double theta) {
+    return 0.0;
 }
 
 /* ----------------------------------------------------------- *\
@@ -349,6 +358,10 @@ population spop2_init(char *arbiters, char stoch) {
                 pop->arbiters[i] = arbiter_init(age_nbinom_pars, age_nbinom_haz, age_hazard_calc, age_stepper);
                 pop->types[i] = AGE_ARBITER;
                 break;
+            case AGE_CUSTOM:
+                pop->arbiters[i] = arbiter_init(age_custom_pars, age_custom_haz, 0, age_stepper);
+                pop->types[i] = AGE_ARBITER;
+                break;
             default:
                 fprintf(stderr, "Development time distribution %d not yet implemented\n", arbiters[i]);
                 exit(1);
@@ -442,6 +455,9 @@ void spop2_step(population pop, double *par, number *survived, number *completed
         hp = pop->arbiters[i]->fun_pars(par[0],par[1]);
         // TO DO: This needs to be fixed and made flexible!
         par += 2;
+        // AGE_CUSTOM 0
+        // AGE_CONST  1
+        // ...        2
         // 
         if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) continue;
         //
