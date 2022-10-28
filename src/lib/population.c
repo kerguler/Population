@@ -1,3 +1,21 @@
+/*
+ * sPop2: a dynamically-structured matrix population model
+ * Copyright (C) 2022 Kamil Erguler <k.erguler@cyi.ac.cy>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -406,7 +424,7 @@ char spop2_add(population pop, number *key_raw, number num) {
     return 0;
 }
 
-void spop2_step(population pop, double *par, number *survived, number *completed, member *poptabledone) {
+void spop2_step(population pop, double *par, number *survived, number *completed, population *popdone) {
     int i;
     //
     hazpar hp;
@@ -441,8 +459,9 @@ void spop2_step(population pop, double *par, number *survived, number *completed
                 q2[i] = pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
                 //
                 if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) {
-                    if (poptabledone) 
-                        key_add(&poptabledone[i], q2, elm->num, pop->nkey, pop->stoch);
+                    if (popdone) {
+                        spop2_add(popdone[i], q2, elm->num);
+                    }
                     if (pop->stoch) {
                         completed[i].i += elm->num.i;
                         (*survived).i -= elm->num.i;
@@ -459,8 +478,9 @@ void spop2_step(population pop, double *par, number *survived, number *completed
                         if (memcmp(&(elm->num), &numZERO, sizeof(number)))
                             key_add(&poptablenext, q2, elm->num, pop->nkey, pop->stoch); // Developing / surviving population
                         if (memcmp(&n2, &numZERO, sizeof(number))) {
-                            if (poptabledone) 
-                                key_add(&poptabledone[i], q2, n2, pop->nkey, pop->stoch); // Completing process
+                            if (popdone) {
+                                spop2_add(popdone[i], q2, n2);
+                            }
                             if (pop->stoch) {
                                 completed[i].i += n2.i;
                                 (*survived).i -= n2.i;
