@@ -101,6 +101,10 @@ double age_hazard_calc(hazard heval, unsigned int d, number q, number k, double 
     return h0 == 1.0 ? 1.0 : 1.0 - (1.0 - h1)/(1.0 - h0); // mortality
 }
 
+double age_custom_calc(hazard heval, unsigned int d, number q, number k, double theta, const number *qkey) {
+    return 0.0; // mortality
+}
+
 /* ----------------------------------------------------------- *\
 \* ----------------------------------------------------------- */
 
@@ -367,12 +371,7 @@ population spop2_init(char *arbiters, char stoch) {
                 pop->numpars[i] = 2;
                 break;
             case AGE_CUSTOM:
-                pop->arbiters[i] = arbiter_init(age_custom_pars, 0, 0, age_stepper);
-                pop->types[i] = AGE_ARBITER;
-                pop->numpars[i] = 0;
-                break;
-            case AGE_DUMMY:
-                pop->arbiters[i] = arbiter_init(age_custom_pars, 0, 0, age_stepper);
+                pop->arbiters[i] = arbiter_init(age_custom_pars, age_custom_haz, age_custom_calc, age_stepper);
                 pop->types[i] = AGE_ARBITER;
                 pop->numpars[i] = 0;
                 break;
@@ -498,7 +497,8 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             for (dev=0; memcmp(&(elm->num),&numZERO,sizeof(number)); ) {
                 q2 = (number *)malloc(pop->nkey * sizeof(number));
                 memcpy(q2, elm->key, pop->nkey * sizeof(number));
-                q2[i] = pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
+                if (pop->arbiters[i]->fun_step)
+                    q2[i] = pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
                 //
                 if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) {
                     if (popdone) {

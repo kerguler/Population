@@ -81,7 +81,6 @@ double nbinom_dist_prob(double, double, unsigned int);
 #define AGE_GAMMA     6
 #define AGE_NBINOM    7
 #define AGE_CUSTOM    8
-#define AGE_DUMMY     9
 
 #define ACC_ARBITER   0
 #define AGE_ARBITER   1
@@ -139,13 +138,25 @@ number acc_stepper(number, unsigned int, number);
 double acc_hazard_calc(hazard, unsigned int, number, number, double, const number *);
 double age_const_calc(hazard, unsigned int, number, number, double, const number *);
 double age_hazard_calc(hazard, unsigned int, number, number, double, const number *);
+double age_custom_calc(hazard, unsigned int, number, number, double, const number *);
 
+hazpar acc_fixed_pars(double, double);
 hazpar acc_erlang_pars(double, double);
+hazpar acc_pascal_pars(double, double);
+hazpar age_fixed_pars(double, double);
 hazpar age_const_pars(double, double);
+hazpar age_gamma_pars(double, double);
+hazpar age_nbinom_pars(double, double);
+hazpar age_custom_pars(double, double);
 
+double acc_fixed_haz(unsigned int, number, double);
 double acc_erlang_haz(unsigned int, number, double);
+double acc_pascal_haz(unsigned int, number, double);
+double age_fixed_haz(unsigned int, number, double);
 double age_const_haz(unsigned int, number, double);
 double age_gamma_haz(unsigned int, number, double);
+double age_nbinom_haz(unsigned int, number, double);
+double age_custom_haz(unsigned int, number, double);
 
 /* ----------------------------------------------------------- *\
  * 
