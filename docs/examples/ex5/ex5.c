@@ -14,7 +14,7 @@ void sim() {
     printf("%d,%g,%g,%g\n",0,spop2_size(pop).d,0.0,0.0);
 
     number size, completed[2];
-    double par[4] = {1.0/60.0, 0.0, 30.0, 5.0};
+    double par[4] = {1.0/60.0, 30.0, 5.0};
 
     int i;
     for (i=0; i<100; i++) {

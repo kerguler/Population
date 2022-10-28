@@ -17,7 +17,7 @@ void sim() {
     population popdone[2];
     popdone[0] = spop2_init(arbiters, DETERMINISTIC);
     popdone[1] = spop2_init(arbiters, DETERMINISTIC);
-    double par[4] = {1.0/60.0, 0.0, 30.0, 5.0};
+    double par[4] = {1.0/60.0, 30.0, 5.0};
 
     int i;
     for (i=0; i<100; i++) {

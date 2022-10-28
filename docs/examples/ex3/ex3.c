@@ -31,7 +31,7 @@ void run_det(char distr, char mode) {
 }
 
 int main(int attr, char *avec[]) {
-    random_init();
+    spop2_random_init();
 
     if (attr == 2) run_det(ACC_ERLANG, atoi(avec[1]));
 

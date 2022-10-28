@@ -4,11 +4,14 @@
 #include "population.h"
 
 double custom(hazard hfun, unsigned int d, number q, number k, double theta, const number *qkey) {
-    return 1.0/20.0;
+    double devmn = 480.0 - (qkey[2].i > 4 ? 240.0 : 48.0 * qkey[2].i);
+    double devsd = 0.1 * devmn;
+    hazpar hz = age_gamma_pars(devmn, devsd);
+    return age_hazard_calc(0, 0, qkey[0].i, hz.k, hz.theta, qkey);
 }
 
 void sim() {
-    char arbiters[2] = {AGE_CUSTOM, STOP};
+    char arbiters[2] = {AGE_CUSTOM, AGE_GAMMA, AGE_DUMMY, STOP};
     population pop = spop2_init(arbiters, DETERMINISTIC);
 
     pop->arbiters[0]->fun_calc = custom;

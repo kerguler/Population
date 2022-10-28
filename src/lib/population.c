@@ -325,6 +325,7 @@ population spop2_init(char *arbiters, char stoch) {
     pop->fun_update = pop->stoch ? update_stoch : update_det;
     //
     pop->types = (char *)calloc(pop->nkey, sizeof(char));
+    pop->numpars = (unsigned int *)calloc(pop->nkey, sizeof(unsigned int));
     //
     pop->arbiters = (arbiter *)malloc(pop->nkey * sizeof(struct arbiter_st));
     for (i=0; i < pop->nkey; i++) {
@@ -333,34 +334,47 @@ population spop2_init(char *arbiters, char stoch) {
             case ACC_FIXED:
                 pop->arbiters[i] = arbiter_init(acc_fixed_pars, acc_fixed_haz, acc_hazard_calc, acc_stepper);
                 pop->types[i] = ACC_ARBITER;
+                pop->numpars[i] = 1;
                 break;
             case ACC_ERLANG:
                 pop->arbiters[i] = arbiter_init(acc_erlang_pars, acc_erlang_haz, acc_hazard_calc, acc_stepper);
                 pop->types[i] = ACC_ARBITER;
+                pop->numpars[i] = 2;
                 break;
             case ACC_PASCAL:
                 pop->arbiters[i] = arbiter_init(acc_pascal_pars, acc_pascal_haz, acc_hazard_calc, acc_stepper);
                 pop->types[i] = ACC_ARBITER;
+                pop->numpars[i] = 2;
                 break;
             case AGE_FIXED:
                 pop->arbiters[i] = arbiter_init(age_fixed_pars, age_fixed_haz, age_hazard_calc, age_stepper);
                 pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 1;
                 break;
             case AGE_CONST:
                 pop->arbiters[i] = arbiter_init(age_const_pars, age_const_haz, age_const_calc, age_stepper);
                 pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 1;
                 break;
             case AGE_GAMMA:
                 pop->arbiters[i] = arbiter_init(age_gamma_pars, age_gamma_haz, age_hazard_calc, age_stepper);
                 pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 2;
                 break;
             case AGE_NBINOM:
                 pop->arbiters[i] = arbiter_init(age_nbinom_pars, age_nbinom_haz, age_hazard_calc, age_stepper);
                 pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 2;
                 break;
             case AGE_CUSTOM:
-                pop->arbiters[i] = arbiter_init(age_custom_pars, age_custom_haz, 0, age_stepper);
+                pop->arbiters[i] = arbiter_init(age_custom_pars, 0, 0, age_stepper);
                 pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 0;
+                break;
+            case AGE_DUMMY:
+                pop->arbiters[i] = arbiter_init(age_custom_pars, 0, 0, age_stepper);
+                pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 0;
                 break;
             default:
                 fprintf(stderr, "Development time distribution %d not yet implemented\n", arbiters[i]);
@@ -379,6 +393,7 @@ void spop2_free(population *pop) {
         arbiter_free(&((*pop)->arbiters[i]));
     free((*pop)->arbiters);
     free((*pop)->types);
+    free((*pop)->numpars);
     spop2_empty(pop);
     free(*pop);
 }
@@ -452,12 +467,23 @@ void spop2_step(population pop, double *par, number *survived, number *completed
     for (i=0; i < pop->nkey; i++) {
         (*survived) = numZERO;
         // 
-        hp = pop->arbiters[i]->fun_pars(par[0],par[1]);
-        // TO DO: This needs to be fixed and made flexible!
-        par += 2;
-        // AGE_CUSTOM 0
-        // AGE_CONST  1
-        // ...        2
+        switch (pop->numpars[i]) {
+            case 0:
+                hp = pop->arbiters[i]->fun_pars(0.0, 0.0);
+            break;
+            case 1:
+                hp = pop->arbiters[i]->fun_pars(par[0], 0.0);
+                par += 1;
+            break;
+            case 2:
+                hp = pop->arbiters[i]->fun_pars(par[0],par[1]);
+                par += 2;
+            break;
+            default:
+                fprintf(stderr, "Hazard functions with more than 2 parameters are not yet supported\n");
+                exit(1);
+            break;
+        }
         // 
         if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) continue;
         //

@@ -81,6 +81,7 @@ double nbinom_dist_prob(double, double, unsigned int);
 #define AGE_GAMMA     6
 #define AGE_NBINOM    7
 #define AGE_CUSTOM    8
+#define AGE_DUMMY     9
 
 #define ACC_ARBITER   0
 #define AGE_ARBITER   1
@@ -183,6 +184,7 @@ struct population_st {
     size_t nkey;
     char stoch;
     char *types;
+    unsigned int *numpars;
     update fun_update;
     arbiter *arbiters;
     member members;
