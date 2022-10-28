@@ -3,28 +3,26 @@
 #include <math.h>
 #include "population.h"
 
-double custom(hazard hfun, unsigned int d, number q, number k, double theta, const number *qkey) {
-    double devmn = 480.0 - (qkey[2].i > 4 ? 240.0 : 48.0 * qkey[2].i);
-    double devsd = 0.1 * devmn;
-    hazpar hz = age_gamma_pars(devmn, devsd);
-    double a = age_hazard_calc(age_gamma_haz, 0, qkey[0], hz.k, hz.theta, qkey);
-    return a;
-}
-
 void sim(char stoch) {
     int i, j;
 
-    char arbiters[4] = {AGE_CUSTOM, AGE_GAMMA, AGE_CUSTOM, STOP};
-    population pop = spop2_init(arbiters, stoch);
+    double death[5] = {0.07, 0.004, 0.003, 0.0025, 0.27};
+    double develop[5] = {0.6, 5.0, 5.9, 4.1, 1e13};
+    double A0 = 600.0;
+    double q = 8.5;
+    double tau = 24.0;
 
-    population popdone[3];
-    for (i=0; i<3; i++)
+    char arbiters[3] = {AGE_CONST, AGE_FIXED, STOP};
+
+    population pop[5];
+    for (i=0; i<5; i++)
+        pop[i] = spop2_init(arbiters, stoch);
+
+    population popdone[2];
+    for (i=0; i<2; i++)
         popdone[i] = spop2_init(arbiters, stoch);
 
-    pop->arbiters[0]->fun_calc = custom;
-    pop->arbiters[2]->fun_step = 0;
-
-    number key[3] = {numZERO,numZERO,numZERO};
+    number key[2] = {numZERO,numZERO};
     number num;
     if (stoch == STOCHASTIC) 
         num.i = 1000;
@@ -65,12 +63,12 @@ void sim(char stoch) {
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    if (FALSE)
-        sim(DETERMINISTIC);
+    if (TRUE)
+        sim_det(DETERMINISTIC);
     else {
         int i;
         for (i=0; i<100; i++)
-            sim(STOCHASTIC);
+            sim_det(STOCHASTIC);
     }
 
     return 0;
