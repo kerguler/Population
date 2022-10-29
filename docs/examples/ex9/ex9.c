@@ -3,6 +3,8 @@
 #include <math.h>
 #include "population.h"
 
+extern gsl_rng *RANDOM;
+
 void sim(char stoch) {
     int i, j;
 
@@ -18,44 +20,55 @@ void sim(char stoch) {
     for (i=0; i<5; i++)
         pop[i] = spop2_init(arbiters, stoch);
 
-    population popdone[2];
-    for (i=0; i<2; i++)
-        popdone[i] = spop2_init(arbiters, stoch);
+    population popdone[5][2];
+    for (i=0; i<5; i++)
+        for (j=0; j<2; j++)
+            popdone[i][j] = spop2_init(arbiters, stoch);
 
     number key[2] = {numZERO,numZERO};
     number num;
     if (stoch == STOCHASTIC) 
-        num.i = 1000;
+        num.i = 500;
     else
-        num.d = 1000.0;
-    spop2_add(pop, key, num);
+        num.d = 500.0;
+    spop2_add(pop[0], key, num);
 
-    if (stoch == STOCHASTIC)
-        printf("%d,%d\n",0,0);
-    else
-        printf("%d,%g\n",0,0.0);
+    if (stoch == STOCHASTIC) {
+        printf("%d",0); for (i=0; i<5; i++) printf(",%d",spop2_size(pop[i]).i); printf("\n");
+    } else {
+        printf("%d",0); for (i=0; i<5; i++) printf(",%g",spop2_size(pop[i]).d); printf("\n");
+    }
 
-    number size, completed[3];
-    double par[2] = {50.0, 10.0};
-
+    number size[5], completed[5][2];
+    double par[2];
     member elm, tmp;
+    number eggs;
 
-    number q[3] = {numZERO,numZERO,numZERO};
+    for (j=0; j<300*tau; j++) {
+        for (i=0; i<5; i++) {
+            par[0] = death[i] / tau;
+            par[1] = develop[i] * tau;
+            spop2_step(pop[i], par, &size[i], completed[i], popdone[i]);
 
-    for (i=0; i<480; i++) {
-        spop2_step(pop, par, &size, completed, popdone);
-        if (stoch == STOCHASTIC)
-            printf("%d,%d\n",i+1,completed[1].i);
-        else
-            printf("%d,%g\n",i+1,completed[1].d);
-        //
-        HASH_ITER(hh, popdone[1]->members, elm, tmp) {
-            q[0].i = elm->key[0].i+1;
-            q[1] = numZERO;
-            q[2].i = elm->key[2].i+1;
-            spop2_add(pop, q, elm->num);
-            for (j=0; j<3; j++)
-                spop2_empty(&popdone[j]);
+            if (i) {
+                HASH_ITER(hh, popdone[i-1][1]->members, elm, tmp) {
+                    spop2_add(pop[i], key, elm->num);
+                }
+            }
+        }
+
+        if (stoch == STOCHASTIC) {
+            eggs.i = q * size[4].i * exp(-size[4].i / A0) / tau;
+            eggs.i = gsl_ran_poisson(RANDOM, eggs.i);
+        } else {
+            eggs.d = q * size[4].d * exp(-size[4].d / A0) / tau;
+        }
+        spop2_add(pop[0], key, eggs);
+
+        if (stoch == STOCHASTIC) {
+            printf("%d",0); for (i=0; i<5; i++) printf(",%d",spop2_size(pop[i]).i); printf("\n");
+        } else {
+            printf("%d",0); for (i=0; i<5; i++) printf(",%g",spop2_size(pop[i]).d); printf("\n");
         }
     }
 }
@@ -64,11 +77,11 @@ int main(int attr, char *avec[]) {
     spop2_random_init();
 
     if (TRUE)
-        sim_det(DETERMINISTIC);
+        sim(DETERMINISTIC);
     else {
         int i;
         for (i=0; i<100; i++)
-            sim_det(STOCHASTIC);
+            sim(STOCHASTIC);
     }
 
     return 0;
