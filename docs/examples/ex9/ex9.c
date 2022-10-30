@@ -5,8 +5,8 @@
 
 extern gsl_rng *RANDOM;
 
-void sim(char stoch) {
-    int i, j;
+void sim(char stoch, char id) {
+    int i, j, k, l;
 
     double death[5] = {0.07, 0.004, 0.003, 0.0025, 0.27};
     double develop[5] = {0.6, 5.0, 5.9, 4.1, 1e13};
@@ -34,9 +34,9 @@ void sim(char stoch) {
     spop2_add(pop[0], key, num);
 
     if (stoch == STOCHASTIC) {
-        printf("%d",0); for (i=0; i<5; i++) printf(",%d",spop2_size(pop[i]).i); printf("\n");
+        printf("%d,%d",id,0); for (i=0; i<5; i++) printf(",%d",spop2_size(pop[i]).i); printf("\n");
     } else {
-        printf("%d",0); for (i=0; i<5; i++) printf(",%g",spop2_size(pop[i]).d); printf("\n");
+        printf("%d,%d",id,0); for (i=0; i<5; i++) printf(",%g",spop2_size(pop[i]).d); printf("\n");
     }
 
     number size[5], completed[5][2];
@@ -58,30 +58,34 @@ void sim(char stoch) {
         }
 
         if (stoch == STOCHASTIC) {
-            eggs.i = q * size[4].i * exp(-size[4].i / A0) / tau;
-            eggs.i = gsl_ran_poisson(RANDOM, eggs.i);
+            double tmp = q * (double)size[4].i * exp(-(double)size[4].i / A0) / tau;
+            eggs.i = (unsigned int)gsl_ran_poisson(RANDOM, tmp);
         } else {
             eggs.d = q * size[4].d * exp(-size[4].d / A0) / tau;
         }
         spop2_add(pop[0], key, eggs);
 
         if (stoch == STOCHASTIC) {
-            printf("%d",0); for (i=0; i<5; i++) printf(",%d",spop2_size(pop[i]).i); printf("\n");
+            printf("%d,%d",id,j); for (k=0; k<5; k++) printf(",%d",spop2_size(pop[k]).i); printf("\n");
         } else {
-            printf("%d",0); for (i=0; i<5; i++) printf(",%g",spop2_size(pop[i]).d); printf("\n");
+            printf("%d,%d",id,j); for (k=0; k<5; k++) printf(",%g",spop2_size(pop[k]).d); printf("\n");
         }
+
+        for (k=0; k<5; k++)
+            for (l=0; l<2; l++)
+                spop2_empty(&popdone[k][l]);
     }
 }
 
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    if (TRUE)
-        sim(DETERMINISTIC);
+    if (FALSE)
+        sim(DETERMINISTIC,0);
     else {
         int i;
         for (i=0; i<100; i++)
-            sim(STOCHASTIC);
+            sim(STOCHASTIC,i+1);
     }
 
     return 0;
