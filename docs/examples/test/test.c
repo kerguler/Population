@@ -7,6 +7,10 @@ extern gsl_rng *RANDOM;
 
 #define N 10000
 
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
+
 struct key_st {
         int a;
         int b;
@@ -37,6 +41,10 @@ void sim1() {
     free(vec);
 }
 
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
+
 void sim2() {
     int i;
 
@@ -57,6 +65,10 @@ void sim2() {
         }
     }
 }
+
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
 
 typedef struct ss_elm_st ss_elm;
 struct ss_elm_st {
@@ -110,6 +122,10 @@ void sim3() {
     }
 }
 
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
+
 typedef struct aa_elm_st aa_elm;
 struct aa_elm_st {
     number *key;
@@ -143,10 +159,39 @@ void sim4() {
     }
 }
 
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
+
+void sim5() {
+    char arbiters[4] = {AGE_CONST, ACC_ERLANG, AGE_CUSTOM, STOP};
+    population pop = spop2_init(arbiters, DETERMINISTIC);
+
+    int i;
+    for (i=0; i<pop->nkey; i++)
+        printf("%d\n",pop->poptable->key_ids[i]);
+
+    void *buffer = (void *)calloc(100, sizeof(char));
+
+    number key_raw[3] = {{.i=10},{.d=0.4},{.i=3}};
+    member_stack_setkey(pop->poptable, key_raw, buffer);
+    member_stack_printkey(pop->poptable, buffer);
+
+    number new_key[3];
+    member_stack_getkey(pop->poptable, buffer, new_key);
+    printf("New key 0: %u\n", new_key[0].i);
+    printf("New key 1: %g\n", new_key[1].d);
+    printf("New key 2: %u\n", new_key[2].i);
+}
+
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
+
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    sim4();
+    sim5();
 
     return 0;
 }

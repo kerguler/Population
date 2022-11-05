@@ -274,12 +274,132 @@ void update_det(double p, number *n, number *n2) {
 }
 
 /* ----------------------------------------------------------- *\
+ * sPop2 - Member stack handlers
+\* ----------------------------------------------------------- */
+
+member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
+    member_stack *poptable = (member_stack *)malloc(sizeof(struct member_stack_st));
+
+    poptable->nkey = nkey;
+
+    poptable->types = (char *)malloc(poptable->nkey * sizeof(char));
+    memcpy(poptable->types, types, poptable->nkey * sizeof(char));
+
+    poptable->key_ids = (unsigned int *)malloc(poptable->nkey * sizeof(unsigned int));
+    poptable->key_size = 0;
+    poptable->num_size = (stoch ? sizeof(unsigned int) : sizeof(double))/sizeof(char);
+
+    int i;
+    for (i=0; i<poptable->nkey; i++) {
+        switch (poptable->types[i]) {
+            case ACC_ARBITER:
+                poptable->key_size += sizeof(double)/sizeof(char);
+                break;
+            case AGE_ARBITER:
+                poptable->key_size += sizeof(unsigned int)/sizeof(char);
+                break;
+            default:
+                fprintf(stderr, "Wrong key type: %d\n", poptable->types[i-1]);
+                exit(1);
+                break;
+        }
+        poptable->key_ids[i] = poptable->key_size;
+    }
+
+    poptable->member_size = poptable->key_size + poptable->num_size;
+    poptable->maxmember = MEMBER_BUFF;
+    poptable->members = (void *)malloc(poptable->maxmember * poptable->member_size * sizeof(char));
+    poptable->nmember = 0;
+
+    return poptable;
+}
+
+void member_stack_free(member_stack *poptable) {
+    free(poptable->types);
+    free(poptable->key_ids);
+    free(poptable->members);
+    free(poptable);
+}
+
+void member_stack_resize(member_stack *poptable) {
+    if (poptable->nmember < poptable->maxmember) return;
+    poptable->maxmember = poptable->nmember + MEMBER_BUFF;
+    void *tmp = (void *)malloc(poptable->maxmember * poptable->member_size * sizeof(char));
+    memcpy(tmp, poptable->members, poptable->nmember * poptable->member_size * sizeof(char));
+    free(poptable->members);
+    poptable->members = tmp;
+}
+
+void member_stack_setkey(member_stack *poptable, number *key_raw, void *dst) {
+    void *tmp;
+    int i;
+    for (i=0, tmp=dst; i<poptable->nkey; i++) {
+        switch (poptable->types[i]) {
+            case ACC_ARBITER:
+                *((double *)tmp) = key_raw[i].d;
+                tmp = (char *)tmp + sizeof(double)/sizeof(char);
+                break;
+            case AGE_ARBITER:
+                *((unsigned int *)tmp) = key_raw[i].i;
+                tmp = (char *)tmp + sizeof(unsigned int)/sizeof(char);
+                break;
+            default:
+                fprintf(stderr, "Wrong key type: %d\n", poptable->types[i-1]);
+                exit(1);
+                break;
+        }
+    }
+}
+
+void member_stack_getkey(member_stack *poptable, void *key, number *key_raw) {
+    void *tmp;
+    int i;
+    for (i=0, tmp=key; i<poptable->nkey; i++) {
+        switch (poptable->types[i]) {
+            case ACC_ARBITER:
+                key_raw[i].d = *((double *)tmp);
+                tmp = (char *)tmp + sizeof(double)/sizeof(char);
+                break;
+            case AGE_ARBITER:
+                key_raw[i].i = *((unsigned int *)tmp);
+                tmp = (char *)tmp + sizeof(unsigned int)/sizeof(char);
+                break;
+            default:
+                fprintf(stderr, "Wrong key type: %d\n", poptable->types[i-1]);
+                exit(1);
+                break;
+        }
+    }
+}
+
+void member_stack_printkey(member_stack *poptable, void *key) {
+    void *tmp;
+    int i;
+    for (i=0, tmp=key; i<poptable->nkey; i++) {
+        switch (poptable->types[i]) {
+            case ACC_ARBITER:
+                printf("Key %d: %g\n", i, *((double *)tmp));
+                tmp = (char *)tmp + sizeof(double)/sizeof(char);
+                break;
+            case AGE_ARBITER:
+                printf("Key %d: %u\n", i, *((unsigned int *)tmp));
+                tmp = (char *)tmp + sizeof(unsigned int)/sizeof(char);
+                break;
+            default:
+                fprintf(stderr, "Wrong key type: %d\n", poptable->types[i-1]);
+                exit(1);
+                break;
+        }
+    }
+}
+
+/* ----------------------------------------------------------- *\
  * sPop2 - Population handlers
 \* ----------------------------------------------------------- */
 
 void spop2_print(population pop) {
     printf("Dynamics: %s\n",pop->stoch?"Stochastic":"Deterministic");
-    printf("Key size: %zu\n",pop->nkey);
+    printf("Key size: %u\n",pop->nkey);
     if (!(pop->members)) {
         printf("Empty population\n");
         return;
@@ -324,6 +444,10 @@ population spop2_init(char *arbiters, char stoch) {
     population pop = (population)malloc(sizeof(struct population_st));
     //
     for (i=0, pop->nkey=0; arbiters[i] != STOP; i++) pop->nkey++;
+    if (pop->nkey == 0) {
+        fprintf(stderr, "Couldn't find any development time distributions\n");
+        exit(1);
+    }
     //
     pop->stoch = stoch;
     pop->fun_update = pop->stoch ? update_stoch : update_det;
@@ -382,6 +506,8 @@ population spop2_init(char *arbiters, char stoch) {
         }
     }
     //
+    pop->poptable = member_stack_init(pop->nkey, pop->types, pop->stoch);
+    //
     pop->members = NULL;
     return pop;
 }
@@ -393,6 +519,7 @@ void spop2_free(population *pop) {
     free((*pop)->arbiters);
     free((*pop)->types);
     free((*pop)->numpars);
+    member_stack_free((*pop)->poptable);
     spop2_empty(pop);
     free(*pop);
 }
@@ -447,6 +574,9 @@ number spop2_remove(population pop, number *key, double frac) {
 char spop2_add(population pop, number *key_raw, number num) {
     number *key = key_init(key_raw, pop->nkey, pop->types);
     key_add(&(pop->members), key, num, pop->nkey, pop->stoch);
+    //
+    member_stack_resize(pop->poptable);
+    // void *member_key = member_stack_setkey(pop->poptable, key_raw);
     //
     return 0;
 }

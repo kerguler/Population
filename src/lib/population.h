@@ -190,15 +190,42 @@ void update_det(double p, number *, number *);
  * 
 \* ----------------------------------------------------------- */
 
+#define MEMBER_BUFF 100
+
+typedef struct member_stack_st member_stack;
+struct member_stack_st {
+    unsigned int nkey;
+    char *types;
+    unsigned int *key_ids;
+    unsigned int key_size;
+    unsigned int num_size;
+    unsigned int member_size;
+    unsigned int maxmember;
+    unsigned int nmember;
+    void *members;
+};
+
+member_stack *member_stack_init(unsigned int, char *, char);
+void member_stack_free(member_stack *);
+void member_stack_resize(member_stack *);
+void member_stack_setkey(member_stack *, number *, void *);
+void member_stack_getkey(member_stack *, void *, number *);
+void member_stack_printkey(member_stack *, void *);
+
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
+
 typedef struct population_st *population;
 struct population_st {
-    size_t nkey;
+    unsigned int nkey;
     char stoch;
     char *types;
     unsigned int *numpars;
     update fun_update;
     arbiter *arbiters;
     member members;
+    member_stack *poptable;
 };
 
 void spop2_set_eps(double);

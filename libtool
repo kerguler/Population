@@ -1,5 +1,5 @@
 #! /bin/sh
-# Generated automatically by config.status (population) 0.0.1
+# Generated automatically by config.status (population) 0.0.2
 # Libtool was configured on host kamilerguler.local:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 
@@ -91,7 +91,7 @@ EGREP="/usr/bin/grep -E"
 FGREP="/usr/bin/grep -F"
 
 # A BSD- or MS-compatible name lister.
-NM="/opt/local/bin/nm -B"
+NM="x86_64-apple-darwin13.4.0-nm"
 
 # Whether we need soft or hard links.
 LN_S="ln -s"
@@ -142,7 +142,7 @@ DLLTOOL="false"
 sharedlib_from_linklib_cmd="printf %s\\n"
 
 # The archiver.
-AR="ar"
+AR="x86_64-apple-darwin13.4.0-ar"
 
 # Flags to create an archive.
 AR_FLAGS="cru"
@@ -151,10 +151,10 @@ AR_FLAGS="cru"
 archiver_list_spec=""
 
 # A symbol stripping program.
-STRIP="strip"
+STRIP="x86_64-apple-darwin13.4.0-strip"
 
 # Commands used to install an old-style archive.
-RANLIB="ranlib"
+RANLIB="x86_64-apple-darwin13.4.0-ranlib"
 old_postinstall_cmds="chmod 644 \$oldlib~\$RANLIB \$tool_oldlib"
 old_postuninstall_cmds=""
 
@@ -186,7 +186,7 @@ global_symbol_to_c_name_address_lib_prefix="sed -n -e 's/^: \\(.*\\) .*\$/  {\"\
 nm_interface="BSD nm"
 
 # Specify filename containing input files for $NM.
-nm_file_list_spec="@"
+nm_file_list_spec=""
 
 # The root where to search for dependent libraries,and where our libraries should be installed.
 lt_sysroot=
@@ -210,13 +210,13 @@ MANIFEST_TOOL=":"
 DSYMUTIL="dsymutil"
 
 # Tool to change global to local symbols on Mac OS X.
-NMEDIT="nmedit"
+NMEDIT="x86_64-apple-darwin13.4.0-nmedit"
 
 # Tool to manipulate fat objects and archives on Mac OS X.
-LIPO="lipo"
+LIPO="x86_64-apple-darwin13.4.0-lipo"
 
 # ldd/readelf like tool for Mach-O binaries on Mac OS X.
-OTOOL="otool"
+OTOOL="x86_64-apple-darwin13.4.0-otool"
 
 # ldd/readelf like tool for 64 bit Mach-O binaries on Mac OS X 10.4.
 OTOOL64=":"
@@ -300,12 +300,12 @@ dlopen_self=unknown
 dlopen_self_static=unknown
 
 # Commands to strip libraries.
-old_striplib="strip -S"
-striplib="strip -x"
+old_striplib="x86_64-apple-darwin13.4.0-strip -S"
+striplib="x86_64-apple-darwin13.4.0-strip -x"
 
 
 # The linker used to build libraries.
-LD="/Library/Developer/CommandLineTools/usr/bin/ld"
+LD="x86_64-apple-darwin13.4.0-ld"
 
 # How to create reloadable object files.
 reload_flag=" -r"
