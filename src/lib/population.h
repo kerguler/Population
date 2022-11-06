@@ -213,6 +213,7 @@ void member_stack_free(member_stack *);
 void member_stack_resize(member_stack *);
 void member_stack_setkey(member_stack *, number *, void *);
 void member_stack_getkey(member_stack *, void *, number *);
+void *member_stack_search(member_stack *, void *);
 void member_stack_add(member_stack *, number *, number);
 void member_stack_printkey(member_stack *, void *);
 void member_stack_print(member_stack *);

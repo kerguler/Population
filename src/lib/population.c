@@ -329,9 +329,22 @@ void member_stack_resize(member_stack *poptable) {
     poptable->members = tmp;
 }
 
+void *member_stack_search(member_stack *poptable, void *key) {
+    return 0;
+}
+
 void member_stack_add(member_stack *poptable, number *key_raw, number num) {
     member_stack_resize(poptable);
-    void *dst = (void *)((char  *)(poptable->members) + poptable->nmember * poptable->member_size);
+    //
+    void *key = (void *)malloc(poptable->key_size * sizeof(char));
+    member_stack_setkey(poptable, key_raw, key);
+    // Need a search function here!
+    //
+    void *dst = member_stack_search(poptable, key);
+    if (!dst)
+        dst = (void *)((char  *)(poptable->members) + poptable->nmember * poptable->member_size);
+    //
+    memcpy(dst, key, poptable->key_size * sizeof(char));
     member_stack_setkey(poptable, key_raw, dst);
     switch (poptable->numtype) {
         case TYP_INT:
@@ -346,6 +359,8 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
             break;
     }
     poptable->nmember++;
+    //
+    free(key);
 }
 
 void member_stack_setkey(member_stack *poptable, number *key_raw, void *dst) {
