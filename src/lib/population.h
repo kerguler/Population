@@ -85,6 +85,9 @@ double nbinom_dist_prob(double, double, unsigned int);
 #define ACC_ARBITER   0
 #define AGE_ARBITER   1
 
+#define TYP_INT       0
+#define TYP_FLOAT     1
+
 /* ----------------------------------------------------------- *\
  * 
 \* ----------------------------------------------------------- */
@@ -195,8 +198,8 @@ void update_det(double p, number *, number *);
 typedef struct member_stack_st member_stack;
 struct member_stack_st {
     unsigned int nkey;
-    char *types;
-    unsigned int *key_ids;
+    char *keytypes;
+    char numtype;
     unsigned int key_size;
     unsigned int num_size;
     unsigned int member_size;
@@ -210,7 +213,9 @@ void member_stack_free(member_stack *);
 void member_stack_resize(member_stack *);
 void member_stack_setkey(member_stack *, number *, void *);
 void member_stack_getkey(member_stack *, void *, number *);
+void member_stack_add(member_stack *, number *, number);
 void member_stack_printkey(member_stack *, void *);
+void member_stack_print(member_stack *);
 
 /* ----------------------------------------------------------- *\
  * 

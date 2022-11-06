@@ -282,28 +282,28 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
 
     poptable->nkey = nkey;
 
-    poptable->types = (char *)malloc(poptable->nkey * sizeof(char));
-    memcpy(poptable->types, types, poptable->nkey * sizeof(char));
+    poptable->keytypes = (char *)malloc(poptable->nkey * sizeof(char));
+    poptable->numtype = stoch ? TYP_INT : TYP_FLOAT;
 
-    poptable->key_ids = (unsigned int *)malloc(poptable->nkey * sizeof(unsigned int));
     poptable->key_size = 0;
     poptable->num_size = (stoch ? sizeof(unsigned int) : sizeof(double))/sizeof(char);
 
     int i;
     for (i=0; i<poptable->nkey; i++) {
-        switch (poptable->types[i]) {
+        switch (types[i]) {
             case ACC_ARBITER:
                 poptable->key_size += sizeof(double)/sizeof(char);
+                poptable->keytypes[i] = TYP_FLOAT;
                 break;
             case AGE_ARBITER:
                 poptable->key_size += sizeof(unsigned int)/sizeof(char);
+                poptable->keytypes[i] = TYP_INT;
                 break;
             default:
-                fprintf(stderr, "Wrong key type: %d\n", poptable->types[i-1]);
+                fprintf(stderr, "Wrong key type: %d\n", types[i-1]);
                 exit(1);
                 break;
         }
-        poptable->key_ids[i] = poptable->key_size;
     }
 
     poptable->member_size = poptable->key_size + poptable->num_size;
@@ -315,8 +315,7 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
 }
 
 void member_stack_free(member_stack *poptable) {
-    free(poptable->types);
-    free(poptable->key_ids);
+    free(poptable->keytypes);
     free(poptable->members);
     free(poptable);
 }
@@ -330,21 +329,40 @@ void member_stack_resize(member_stack *poptable) {
     poptable->members = tmp;
 }
 
+void member_stack_add(member_stack *poptable, number *key_raw, number num) {
+    member_stack_resize(poptable);
+    void *dst = (void *)((char  *)(poptable->members) + poptable->nmember * poptable->member_size);
+    member_stack_setkey(poptable, key_raw, dst);
+    switch (poptable->numtype) {
+        case TYP_INT:
+            memcpy((char *)dst + poptable->key_size, &num.i, sizeof(unsigned int));
+            break;
+        case TYP_FLOAT:
+            memcpy((char *)dst + poptable->key_size, &num.d, sizeof(double));
+            break;
+        default:
+            fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
+            exit(1);
+            break;
+    }
+    poptable->nmember++;
+}
+
 void member_stack_setkey(member_stack *poptable, number *key_raw, void *dst) {
     void *tmp;
     int i;
     for (i=0, tmp=dst; i<poptable->nkey; i++) {
-        switch (poptable->types[i]) {
-            case ACC_ARBITER:
+        switch (poptable->keytypes[i]) {
+            case TYP_FLOAT:
                 *((double *)tmp) = key_raw[i].d;
                 tmp = (char *)tmp + sizeof(double)/sizeof(char);
                 break;
-            case AGE_ARBITER:
+            case TYP_INT:
                 *((unsigned int *)tmp) = key_raw[i].i;
                 tmp = (char *)tmp + sizeof(unsigned int)/sizeof(char);
                 break;
             default:
-                fprintf(stderr, "Wrong key type: %d\n", poptable->types[i-1]);
+                fprintf(stderr, "Wrong key type: %d\n", poptable->keytypes[i-1]);
                 exit(1);
                 break;
         }
@@ -355,17 +373,17 @@ void member_stack_getkey(member_stack *poptable, void *key, number *key_raw) {
     void *tmp;
     int i;
     for (i=0, tmp=key; i<poptable->nkey; i++) {
-        switch (poptable->types[i]) {
-            case ACC_ARBITER:
+        switch (poptable->keytypes[i]) {
+            case TYP_FLOAT:
                 key_raw[i].d = *((double *)tmp);
                 tmp = (char *)tmp + sizeof(double)/sizeof(char);
                 break;
-            case AGE_ARBITER:
+            case TYP_INT:
                 key_raw[i].i = *((unsigned int *)tmp);
                 tmp = (char *)tmp + sizeof(unsigned int)/sizeof(char);
                 break;
             default:
-                fprintf(stderr, "Wrong key type: %d\n", poptable->types[i-1]);
+                fprintf(stderr, "Wrong key type: %d\n", poptable->keytypes[i-1]);
                 exit(1);
                 break;
         }
@@ -376,17 +394,38 @@ void member_stack_printkey(member_stack *poptable, void *key) {
     void *tmp;
     int i;
     for (i=0, tmp=key; i<poptable->nkey; i++) {
-        switch (poptable->types[i]) {
-            case ACC_ARBITER:
+        switch (poptable->keytypes[i]) {
+            case TYP_FLOAT:
                 printf("Key %d: %g\n", i, *((double *)tmp));
                 tmp = (char *)tmp + sizeof(double)/sizeof(char);
                 break;
-            case AGE_ARBITER:
+            case TYP_INT:
                 printf("Key %d: %u\n", i, *((unsigned int *)tmp));
                 tmp = (char *)tmp + sizeof(unsigned int)/sizeof(char);
                 break;
             default:
-                fprintf(stderr, "Wrong key type: %d\n", poptable->types[i-1]);
+                fprintf(stderr, "Wrong key type: %d\n", poptable->keytypes[i-1]);
+                exit(1);
+                break;
+        }
+    }
+}
+
+void member_stack_print(member_stack *poptable) {
+    void *dst;
+    int i;
+    for (i=0, dst = poptable->members; i<poptable->nmember; i++, dst = (char *)dst + poptable->member_size) {
+        printf("Member %d\n", i);
+        member_stack_printkey(poptable, dst);
+        switch (poptable->numtype) {
+            case TYP_INT:
+                printf("Num: %u\n", *(unsigned int *)((char *)dst+poptable->key_size));
+                break;
+            case TYP_FLOAT:
+                printf("Num: %g\n", *(double *)((char *)dst+poptable->key_size));
+                break;
+            default:
+                fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
                 exit(1);
                 break;
         }
@@ -575,8 +614,7 @@ char spop2_add(population pop, number *key_raw, number num) {
     number *key = key_init(key_raw, pop->nkey, pop->types);
     key_add(&(pop->members), key, num, pop->nkey, pop->stoch);
     //
-    member_stack_resize(pop->poptable);
-    // void *member_key = member_stack_setkey(pop->poptable, key_raw);
+    member_stack_add(pop->poptable, key_raw, num);
     //
     return 0;
 }

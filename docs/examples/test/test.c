@@ -167,21 +167,19 @@ void sim5() {
     char arbiters[4] = {AGE_CONST, ACC_ERLANG, AGE_CUSTOM, STOP};
     population pop = spop2_init(arbiters, DETERMINISTIC);
 
-    int i;
-    for (i=0; i<pop->nkey; i++)
-        printf("%d\n",pop->poptable->key_ids[i]);
-
-    void *buffer = (void *)calloc(100, sizeof(char));
-
+    {
     number key_raw[3] = {{.i=10},{.d=0.4},{.i=3}};
-    member_stack_setkey(pop->poptable, key_raw, buffer);
-    member_stack_printkey(pop->poptable, buffer);
+    number num = {.d=0.7};
+    member_stack_add(pop->poptable, key_raw, num);
+    }
 
-    number new_key[3];
-    member_stack_getkey(pop->poptable, buffer, new_key);
-    printf("New key 0: %u\n", new_key[0].i);
-    printf("New key 1: %g\n", new_key[1].d);
-    printf("New key 2: %u\n", new_key[2].i);
+    {
+    number key_raw[3] = {{.i=11},{.d=0.5},{.i=6}};
+    number num = {.d=1.7};
+    member_stack_add(pop->poptable, key_raw, num);
+    }
+
+    member_stack_print(pop->poptable);
 }
 
 /* ----------------------------------------------------------- *\
