@@ -6,7 +6,7 @@
 extern gsl_rng *RANDOM;
 
 void sim(char stoch, char id) {
-    int i, j, k, l;
+    int i, j, k;
 
     double death[5] = {0.07, 0.004, 0.003, 0.0025, 0.27};
     double develop[5] = {0.6, 5.0, 5.9, 4.1, 1e13};
@@ -19,11 +19,6 @@ void sim(char stoch, char id) {
     population pop[5];
     for (i=0; i<5; i++)
         pop[i] = spop2_init(arbiters, stoch);
-
-    population popdone[5][2];
-    for (i=0; i<5; i++)
-        for (j=0; j<2; j++)
-            popdone[i][j] = spop2_init(arbiters, stoch);
 
     number key[2] = {numZERO,numZERO};
     number num;
@@ -47,10 +42,10 @@ void sim(char stoch, char id) {
         for (i=0; i<5; i++) {
             par[0] = death[i] / tau;
             par[1] = develop[i] * tau;
-            spop2_step(pop[i], par, &size[i], completed[i], popdone[i]);
+            spop2_step(pop[i], par, &size[i], completed[i], 0);
 
             if (i) {
-                spop2_addpop(pop[i], popdone[i-1][1]);
+                spop2_add(pop[i], key, completed[i-1][1]);
             }
         }
 
@@ -67,10 +62,6 @@ void sim(char stoch, char id) {
         } else {
             printf("%d,%d",id,j); for (k=0; k<5; k++) printf(",%g",spop2_size(pop[k]).d); printf("\n");
         }
-
-        for (k=0; k<5; k++)
-            for (l=0; l<2; l++)
-                spop2_empty(&popdone[k][l]);
     }
 }
 
