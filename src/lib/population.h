@@ -216,8 +216,11 @@ void member_stack_getkey(member_stack *, void *, number *);
 void *member_stack_search(member_stack *, void *);
 void member_stack_add(member_stack *, number *, number);
 number member_stack_remove(member_stack *, number *, double);
+void member_stack_numsum(member_stack *, number *);
 void member_stack_printkey(member_stack *, void *);
+void member_stack_printnum(member_stack *, void *);
 void member_stack_print(member_stack *);
+void member_stack_printable(member_stack *);
 
 /* ----------------------------------------------------------- *\
  * 
@@ -231,8 +234,8 @@ struct population_st {
     unsigned int *numpars;
     update fun_update;
     arbiter *arbiters;
-    member members;
     member_stack *poptable;
+    member members;
 };
 
 void spop2_set_eps(double);

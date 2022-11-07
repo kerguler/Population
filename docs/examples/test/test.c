@@ -221,6 +221,33 @@ void sim6() {
     member_stack_print(pop->poptable);
 }
 
+void sim7() {
+    char arbiters[4] = {AGE_CONST, ACC_ERLANG, AGE_CUSTOM, STOP};
+    population pop = spop2_init(arbiters, DETERMINISTIC);
+
+    {
+    number key_raw[3] = {{.i=10},{.d=0.4},{.i=3}};
+    number num = {.d=0.7};
+    spop2_add(pop, key_raw, num);
+    }
+
+    {
+    number key_raw[3] = {{.i=11},{.d=0.5},{.i=6}};
+    number num = {.d=1.7};
+    spop2_add(pop, key_raw, num);
+    }
+
+    {
+    number key_raw[3] = {{.i=10},{.d=0.4},{.i=3}};
+    number num = {.d=0.9};
+    spop2_add(pop, key_raw, num);
+    }
+
+    spop2_print(pop);
+    spop2_printable(pop,0);
+    printf("Size: %g\n", spop2_size(pop).d);
+}
+
 /* ----------------------------------------------------------- *\
  * 
 \* ----------------------------------------------------------- */
@@ -228,7 +255,7 @@ void sim6() {
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    sim6();
+    sim7();
 
     return 0;
 }

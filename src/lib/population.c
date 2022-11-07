@@ -322,6 +322,7 @@ void member_stack_free(member_stack *poptable) {
 
 void member_stack_resize(member_stack *poptable) {
     if (poptable->nmember < poptable->maxmember) return;
+    if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return;
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
     void *tmp = (void *)malloc(poptable->maxmember * poptable->member_size * sizeof(char));
     memcpy(tmp, poptable->members, poptable->nmember * poptable->member_size * sizeof(char));
@@ -346,19 +347,18 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
     member_stack_setkey(poptable, key_raw, key);
     void *dst = member_stack_search(poptable, key);
     //
+    unsigned int *tmpi;
+    double *tmpd;
+    //
     if (dst) {
         switch (poptable->numtype) {
             case TYP_INT:
-                {
-                    unsigned int *tmp = (unsigned int *)((char *)dst + poptable->key_size);
-                    *tmp += num.i;
-                }
+                tmpi = (unsigned int *)((char *)dst + poptable->key_size);
+                *tmpi += num.i;
                 break;
             case TYP_FLOAT:
-                {
-                    double *tmp = (double *)((char *)dst + poptable->key_size);
-                    *tmp += num.d;
-                }
+                tmpd = (double *)((char *)dst + poptable->key_size);
+                *tmpd += num.d;
                 break;
             default:
                 fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
@@ -402,35 +402,34 @@ number member_stack_remove(member_stack *poptable, number *key_raw, double frac)
     number ret = numZERO;
     void *pnt = (void *)((char *)dst + poptable->key_size);
     //
+    unsigned int tmpi;
+    double tmpd;
+    //
     switch (poptable->numtype) {
         case TYP_INT:
-            {
-                unsigned int tmp = *(unsigned int *)pnt;
-                ret.i = gsl_ran_binomial(RANDOM, frac, tmp);
-                tmp -= ret.i;
-                if (tmp) {
-                    memcpy((char *)dst + poptable->key_size, &tmp, sizeof(unsigned int));
-                } else if (poptable->nmember > 1) {
-                    memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
-                    poptable->nmember--;
-                } else {
-                    poptable->nmember--;
-                }
+            tmpi = *(unsigned int *)pnt;
+            ret.i = gsl_ran_binomial(RANDOM, frac, tmpi);
+            tmpi -= ret.i;
+            if (tmpi) {
+                memcpy((char *)dst + poptable->key_size, &tmpi, sizeof(unsigned int));
+            } else if (poptable->nmember > 1) {
+                memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
+                poptable->nmember--;
+            } else {
+                poptable->nmember--;
             }
             break;
         case TYP_FLOAT:
-            {
-                double tmp = *(double *)pnt;
-                ret.d = frac * tmp;
-                tmp -= ret.d;
-                if (tmp) {
-                    memcpy((char *)dst + poptable->key_size, &tmp, sizeof(double));
-                } else if (poptable->nmember > 1) {
-                    memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
-                    poptable->nmember--;
-                } else {
-                    poptable->nmember--;
-                }
+            tmpd = *(double *)pnt;
+            ret.d = frac * tmpd;
+            tmpd -= ret.d;
+            if (tmpd) {
+                memcpy((char *)dst + poptable->key_size, &tmpd, sizeof(double));
+            } else if (poptable->nmember > 1) {
+                memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
+                poptable->nmember--;
+            } else {
+                poptable->nmember--;
             }
             break;
         default:
@@ -440,6 +439,7 @@ number member_stack_remove(member_stack *poptable, number *key_raw, double frac)
     }
     //
     free(key);
+    member_stack_resize(poptable);
     return ret;
 }
 
@@ -485,17 +485,37 @@ void member_stack_getkey(member_stack *poptable, void *key, number *key_raw) {
     }
 }
 
+void member_stack_numsum(member_stack *poptable, number *numsum) {
+    *numsum = numZERO;
+    void *dst;
+    int i;
+    switch (poptable->numtype) {
+        case TYP_INT:
+            for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size * sizeof(char)))
+                (*numsum).i += *(unsigned int *)((char *)dst + poptable->key_size);
+            break;
+        case TYP_FLOAT:
+            for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size * sizeof(char)))
+                (*numsum).d += *(double *)((char *)dst + poptable->key_size);
+            break;
+        default:
+            fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
+            exit(1);
+            break;
+    }
+}
+
 void member_stack_printkey(member_stack *poptable, void *key) {
     void *tmp;
     int i;
     for (i=0, tmp=key; i<poptable->nkey; i++) {
         switch (poptable->keytypes[i]) {
             case TYP_FLOAT:
-                printf("Key %d: %g\n", i, *((double *)tmp));
+                printf("%s%g", i ? "," : "", *((double *)tmp));
                 tmp = (char *)tmp + sizeof(double)/sizeof(char);
                 break;
             case TYP_INT:
-                printf("Key %d: %u\n", i, *((unsigned int *)tmp));
+                printf("%s%u", i ? "," : "", *((unsigned int *)tmp));
                 tmp = (char *)tmp + sizeof(unsigned int)/sizeof(char);
                 break;
             default:
@@ -506,24 +526,58 @@ void member_stack_printkey(member_stack *poptable, void *key) {
     }
 }
 
+void member_stack_printnum(member_stack *poptable, void *key) {
+    void *tmp = (void *)((char *)key + poptable->key_size * sizeof(char));
+    switch (poptable->numtype) {
+        case TYP_FLOAT:
+            printf("%g", *((double *)tmp));
+            break;
+        case TYP_INT:
+            printf("%u", *((unsigned int *)tmp));
+            break;
+        default:
+            fprintf(stderr, "Wrong key type: %d\n", poptable->numtype);
+            exit(1);
+            break;
+    }
+}
+
 void member_stack_print(member_stack *poptable) {
+    if (!poptable->nmember) {
+        printf("Empty population\n");
+        return;
+    }
     void *dst;
     int i;
     for (i=0, dst = poptable->members; i<poptable->nmember; i++, dst = (char *)dst + poptable->member_size) {
-        printf("Member %d\n", i);
+        printf("Member{ (");
         member_stack_printkey(poptable, dst);
         switch (poptable->numtype) {
             case TYP_INT:
-                printf("Num: %u\n", *(unsigned int *)((char *)dst+poptable->key_size));
+                printf(") => %u }\n", *(unsigned int *)((char *)dst+poptable->key_size));
                 break;
             case TYP_FLOAT:
-                printf("Num: %g\n", *(double *)((char *)dst+poptable->key_size));
+                printf(") => %g }\n", *(double *)((char *)dst+poptable->key_size));
                 break;
             default:
                 fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
                 exit(1);
                 break;
         }
+    }
+}
+
+void member_stack_printable(member_stack *poptable) {
+    if (!poptable->nmember) {
+        return;
+    }
+    void *dst;
+    int i;
+    for (i=0, dst = poptable->members; i<poptable->nmember; i++, dst = (char *)dst + poptable->member_size) {
+        member_stack_printkey(poptable, dst);
+        printf(",");
+        member_stack_printnum(poptable, dst);
+        printf("\n");
     }
 }
 
@@ -534,42 +588,13 @@ void member_stack_print(member_stack *poptable) {
 void spop2_print(population pop) {
     printf("Dynamics: %s\n",pop->stoch?"Stochastic":"Deterministic");
     printf("Key size: %u\n",pop->nkey);
-    if (!(pop->members)) {
-        printf("Empty population\n");
-        return;
-    }
-    member elm, tmp;
-    HASH_ITER(hh, pop->members, elm, tmp) {
-        printf("Member{ (");
-        int i;
-        for (i = 0; i < pop->nkey; i++)
-            if (pop->types[i] == ACC_ARBITER)
-                printf("%s%g", i ? "," : "", elm->key[i].d);
-            else
-                printf("%s%u", i ? "," : "", elm->key[i].i);
-        if (pop->stoch)
-            printf(") => %u }\n",elm->num.i);
-        else
-            printf(") => %g }\n",elm->num.d);
-    }
+    //
+    member_stack_print(pop->poptable);
 }
 
-
 void spop2_printable(population pop, int tm) {
-    member elm, tmp;
-    HASH_ITER(hh, pop->members, elm, tmp) {
-        printf("%d,", tm);
-        int i;
-        for (i = 0; i < pop->nkey; i++)
-            if (pop->types[i] == ACC_ARBITER)
-                printf("%s%g", i ? "," : "", elm->key[i].d);
-            else
-                printf("%s%u", i ? "," : "", elm->key[i].i);
-        if (pop->stoch)
-            printf(",%u\n",elm->num.i);
-        else
-            printf(",%g\n",elm->num.d);
-    }
+    printf("%d,",tm);
+    member_stack_printable(pop->poptable);
 }
 
 population spop2_init(char *arbiters, char stoch) {
@@ -642,7 +667,6 @@ population spop2_init(char *arbiters, char stoch) {
     //
     pop->poptable = member_stack_init(pop->nkey, pop->types, pop->stoch);
     //
-    pop->members = NULL;
     return pop;
 }
 
@@ -660,57 +684,22 @@ void spop2_free(population *pop) {
 
 void spop2_empty(population *pop) {
     if (!(*pop)) return;
-    member elm, tmp;
-    HASH_ITER(hh, (*pop)->members, elm, tmp) {
-        HASH_DEL((*pop)->members, elm);
-    }
+    (*pop)->poptable->nmember = 0;
+    member_stack_resize((*pop)->poptable);
 }
 
 number spop2_size(population pop) {
     number sz = numZERO;
-    member elm, tmp;
-    if (pop->stoch) {
-        HASH_ITER(hh, pop->members, elm, tmp) {
-            sz.i += elm->num.i;
-        }    
-    } else {
-        HASH_ITER(hh, pop->members, elm, tmp) {
-            sz.d += elm->num.d;
-        }    
-    }
+    member_stack_numsum(pop->poptable, &sz);
     return sz;
 }
 
-number spop2_remove(population pop, number *key, double frac) {
-    member qnt = NULL;
-    HASH_FIND(hh, pop->members, &key[0], pop->nkey * sizeof(number), qnt);
-    if (qnt) {
-        number ret = qnt->num;
-        //
-        if (pop->stoch) {
-            ret.i = gsl_ran_binomial(RANDOM, frac, ret.i);
-            qnt->num.i -= ret.i;
-        } else {
-            ret.d *= frac;
-            qnt->num.d -= ret.d;
-        }
-        //
-        if (!memcmp(&(qnt->num), &numZERO, sizeof(number))) {
-            HASH_DEL(pop->members, qnt);
-            member_free(qnt);
-        }
-        //
-        return ret;
-    }
-    return numZERO;
+number spop2_remove(population pop, number *key_raw, double frac) {
+    return member_stack_remove(pop->poptable, key_raw, frac);
 }
 
 char spop2_add(population pop, number *key_raw, number num) {
-    number *key = key_init(key_raw, pop->nkey, pop->types);
-    key_add(&(pop->members), key, num, pop->nkey, pop->stoch);
-    //
     member_stack_add(pop->poptable, key_raw, num);
-    //
     return 0;
 }
 
