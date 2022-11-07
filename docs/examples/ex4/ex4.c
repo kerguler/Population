@@ -77,7 +77,7 @@ void sim_sd() {
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    // sim_eps();
+    //sim_eps();
     sim_sd();
 
     return 0;

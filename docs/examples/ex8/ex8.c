@@ -3,6 +3,8 @@
 #include <math.h>
 #include "population.h"
 
+population pop;
+
 double custom(hazard hfun, unsigned int d, number q, number k, double theta, const number *qkey) {
     double devmn = 480.0 - (qkey[2].i > 4 ? 240.0 : 48.0 * qkey[2].i);
     double devsd = 0.1 * devmn;
@@ -11,11 +13,18 @@ double custom(hazard hfun, unsigned int d, number q, number k, double theta, con
     return a;
 }
 
+void add_fun(number *key, number num) {
+    key[0].i = key[0].i + 1;
+    key[1] = numZERO;
+    key[2].i = key[2].i + 1;
+    spop2_add(pop, key, num);
+}
+
 void sim(char stoch) {
     int i, j;
 
     char arbiters[4] = {AGE_CUSTOM, AGE_GAMMA, AGE_CUSTOM, STOP};
-    population pop = spop2_init(arbiters, stoch);
+    pop = spop2_init(arbiters, stoch);
 
     population popdone[3];
     for (i=0; i<3; i++)
@@ -40,10 +49,6 @@ void sim(char stoch) {
     number size, completed[3];
     double par[2] = {50.0, 10.0};
 
-    member elm, tmp;
-
-    number q[3] = {numZERO,numZERO,numZERO};
-
     for (i=0; i<480; i++) {
         spop2_step(pop, par, &size, completed, popdone);
         if (stoch == STOCHASTIC)
@@ -51,14 +56,9 @@ void sim(char stoch) {
         else
             printf("%d,%g\n",i+1,completed[1].d);
         //
-        HASH_ITER(hh, popdone[1]->members, elm, tmp) {
-            q[0].i = elm->key[0].i+1;
-            q[1] = numZERO;
-            q[2].i = elm->key[2].i+1;
-            spop2_add(pop, q, elm->num);
-            for (j=0; j<3; j++)
-                spop2_empty(&popdone[j]);
-        }
+        spop2_foreach(popdone[1], add_fun);
+        for (j=0; j<3; j++)
+            spop2_empty(&popdone[j]);
     }
 }
 

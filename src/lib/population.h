@@ -223,7 +223,7 @@ void member_stack_numsum(member_stack *, number *);
 void member_stack_printkey(member_stack *, void *);
 void member_stack_printnum(member_stack *, void *);
 void member_stack_print(member_stack *);
-void member_stack_printable(member_stack *);
+void member_stack_printable(member_stack *, int);
 
 /* ----------------------------------------------------------- *\
  * 
@@ -250,6 +250,7 @@ number spop2_remove(population, number *, double);
 char spop2_add(population, number *, number);
 char spop2_addpop(population, population);
 void spop2_step(population, double *, number *, number *, population *);
+void spop2_foreach(population, void (*)(number *, number));
 void spop2_print(population);
 void spop2_printable(population, int);
 

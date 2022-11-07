@@ -566,13 +566,14 @@ void member_stack_print(member_stack *poptable) {
     }
 }
 
-void member_stack_printable(member_stack *poptable) {
+void member_stack_printable(member_stack *poptable, int tm) {
     if (!poptable->nmember) {
         return;
     }
     void *dst;
     int i;
     for (i=0, dst = poptable->members; i<poptable->nmember; i++, dst = (void *)((char *)dst + poptable->member_size)) {
+        printf("%d,",tm);
         member_stack_printkey(poptable, dst);
         printf(",");
         member_stack_printnum(poptable, dst);
@@ -592,8 +593,7 @@ void spop2_print(population pop) {
 }
 
 void spop2_printable(population pop, int tm) {
-    printf("%d,",tm);
-    member_stack_printable(pop->poptable);
+    member_stack_printable(pop->poptable, tm);
 }
 
 population spop2_init(char *arbiters, char stoch) {
@@ -721,6 +721,19 @@ char spop2_addpop(population popdst, population popsrc) {
     return 0;
 }
 
+void spop2_foreach(population pop, void (*func)(number *key, number num)) {
+    number *key = (number *)malloc(pop->nkey * sizeof(number));
+    number num;
+    void *dst;
+    int i;
+    for (i=0, dst = pop->poptable->members; i<pop->poptable->nmember; i++, dst = (void *)((char *)dst + pop->poptable->member_size)) {
+        member_stack_getkey(pop->poptable, dst, key);
+        member_stack_getnum(pop->poptable, dst, &num);
+        func(key, num);        
+    }
+    free(key);
+}
+
 void spop2_step(population pop, double *par, number *survived, number *completed, population *popdone) {
     int i, j;
     //
@@ -734,8 +747,8 @@ void spop2_step(population pop, double *par, number *survived, number *completed
     member_stack *poptablenext;
     void *dst;
     //
-    *survived = numZERO;
     for (i=0; i < pop->nkey; i++) {
+        *survived = numZERO;
         completed[i] = numZERO;
         // 
         switch (pop->numpars[i]) {
