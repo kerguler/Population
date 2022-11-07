@@ -330,6 +330,12 @@ void member_stack_resize(member_stack *poptable) {
 }
 
 void *member_stack_search(member_stack *poptable, void *key) {
+    void *dst;
+    size_t sz = poptable->key_size * sizeof(char);
+    int i;
+    for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size))
+        if (!memcmp(dst, key, sz))
+            return dst;
     return 0;
 }
 
@@ -338,12 +344,32 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
     //
     void *key = (void *)malloc(poptable->key_size * sizeof(char));
     member_stack_setkey(poptable, key_raw, key);
-    // Need a search function here!
-    //
     void *dst = member_stack_search(poptable, key);
-    if (!dst)
-        dst = (void *)((char  *)(poptable->members) + poptable->nmember * poptable->member_size);
     //
+    if (dst) {
+        switch (poptable->numtype) {
+            case TYP_INT:
+                {
+                    unsigned int *tmp = (unsigned int *)((char *)dst + poptable->key_size);
+                    *tmp += num.i;
+                }
+                break;
+            case TYP_FLOAT:
+                {
+                    double *tmp = (double *)((char *)dst + poptable->key_size);
+                    *tmp += num.d;
+                }
+                break;
+            default:
+                fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
+                exit(1);
+                break;
+        }
+        free(key);
+        return;
+    }
+    //
+    dst = (void *)((char  *)(poptable->members) + poptable->nmember * poptable->member_size);
     memcpy(dst, key, poptable->key_size * sizeof(char));
     member_stack_setkey(poptable, key_raw, dst);
     switch (poptable->numtype) {
@@ -361,6 +387,60 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
     poptable->nmember++;
     //
     free(key);
+}
+
+number member_stack_remove(member_stack *poptable, number *key_raw, double frac) {
+    void *key = (void *)malloc(poptable->key_size * sizeof(char));
+    member_stack_setkey(poptable, key_raw, key);
+    void *dst = member_stack_search(poptable, key);
+    //
+    if (!dst) {
+        free(key);
+        return numZERO;
+    }
+    //
+    number ret = numZERO;
+    void *pnt = (void *)((char *)dst + poptable->key_size);
+    //
+    switch (poptable->numtype) {
+        case TYP_INT:
+            {
+                unsigned int tmp = *(unsigned int *)pnt;
+                ret.i = gsl_ran_binomial(RANDOM, frac, tmp);
+                tmp -= ret.i;
+                if (tmp) {
+                    memcpy((char *)dst + poptable->key_size, &tmp, sizeof(unsigned int));
+                } else if (poptable->nmember > 1) {
+                    memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
+                    poptable->nmember--;
+                } else {
+                    poptable->nmember--;
+                }
+            }
+            break;
+        case TYP_FLOAT:
+            {
+                double tmp = *(double *)pnt;
+                ret.d = frac * tmp;
+                tmp -= ret.d;
+                if (tmp) {
+                    memcpy((char *)dst + poptable->key_size, &tmp, sizeof(double));
+                } else if (poptable->nmember > 1) {
+                    memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
+                    poptable->nmember--;
+                } else {
+                    poptable->nmember--;
+                }
+            }
+            break;
+        default:
+            fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
+            exit(1);
+            break;
+    }
+    //
+    free(key);
+    return ret;
 }
 
 void member_stack_setkey(member_stack *poptable, number *key_raw, void *dst) {

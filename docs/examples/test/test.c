@@ -206,6 +206,18 @@ void sim6() {
     member_stack_add(pop->poptable, key_raw, num);
     }
 
+    {
+    number key_raw[3] = {{.i=10},{.d=0.4},{.i=3}};
+    number num = member_stack_remove(pop->poptable, key_raw, 1.0);
+    printf("Removed: %g\n", num.d);
+    }
+
+    {
+    number key_raw[3] = {{.i=11},{.d=0.4},{.i=6}};
+    number num = member_stack_remove(pop->poptable, key_raw, 1.0);
+    printf("Removed: %g\n", num.d);
+    }
+
     member_stack_print(pop->poptable);
 }
 
