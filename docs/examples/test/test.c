@@ -248,6 +248,39 @@ void sim7() {
     printf("Size: %g\n", spop2_size(pop).d);
 }
 
+void sim8() {
+    char arbiters[2] = {ACC_ERLANG, STOP};
+    population pop = spop2_init(arbiters, DETERMINISTIC);
+
+    {
+    number key_raw = {.d=0.0};
+    number num = {.d=100.0};
+    spop2_add(pop, &key_raw, num);
+    }
+
+    spop2_printable(pop,0);
+
+    double par[2] = {10.0, 2.0};
+    number survived;
+    number completed;
+    spop2_step(pop, par, &survived, &completed, 0);
+
+    spop2_printable(pop,0);
+    printf("%d,%g,%g\n",1,survived.d,completed.d);
+
+    spop2_step(pop, par, &survived, &completed, 0);
+    spop2_printable(pop,0);
+    printf("%d,%g,%g\n",2,survived.d,completed.d);
+
+    /*
+    int i;
+    for (i=0; i<20; i++) {
+        spop2_step(pop, par, &survived, &completed, 0);
+        printf("%d,%g,%g\n",i,survived.d,completed.d);
+    }
+    */
+}
+
 /* ----------------------------------------------------------- *\
  * 
 \* ----------------------------------------------------------- */
@@ -255,7 +288,7 @@ void sim7() {
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    sim7();
+    sim8();
 
     return 0;
 }

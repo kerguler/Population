@@ -200,6 +200,7 @@ struct member_stack_st {
     unsigned int nkey;
     char *keytypes;
     char numtype;
+    unsigned int *key_ids;
     unsigned int key_size;
     unsigned int num_size;
     unsigned int member_size;
@@ -212,7 +213,9 @@ member_stack *member_stack_init(unsigned int, char *, char);
 void member_stack_free(member_stack *);
 void member_stack_resize(member_stack *);
 void member_stack_setkey(member_stack *, number *, void *);
+void member_stack_getkey_id(member_stack *, void *, int, number *);
 void member_stack_getkey(member_stack *, void *, number *);
+void member_stack_getnum(member_stack *, void *, number *);
 void *member_stack_search(member_stack *, void *);
 void member_stack_add(member_stack *, number *, number);
 number member_stack_remove(member_stack *, number *, double);
@@ -235,7 +238,6 @@ struct population_st {
     update fun_update;
     arbiter *arbiters;
     member_stack *poptable;
-    member members;
 };
 
 void spop2_set_eps(double);
