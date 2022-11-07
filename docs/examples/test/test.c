@@ -258,27 +258,16 @@ void sim8() {
     spop2_add(pop, &key_raw, num);
     }
 
-    spop2_printable(pop,0);
-
     double par[2] = {10.0, 2.0};
     number survived;
     number completed;
     spop2_step(pop, par, &survived, &completed, 0);
 
-    spop2_printable(pop,0);
-    printf("%d,%g,%g\n",1,survived.d,completed.d);
-
-    spop2_step(pop, par, &survived, &completed, 0);
-    spop2_printable(pop,0);
-    printf("%d,%g,%g\n",2,survived.d,completed.d);
-
-    /*
     int i;
     for (i=0; i<20; i++) {
         spop2_step(pop, par, &survived, &completed, 0);
         printf("%d,%g,%g\n",i,survived.d,completed.d);
     }
-    */
 }
 
 /* ----------------------------------------------------------- *\

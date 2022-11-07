@@ -436,10 +436,10 @@ void member_stack_getkey_id(member_stack *poptable, void *key, int id, number *k
     *key_raw = numZERO;
     switch (poptable->keytypes[id]) {
         case TYP_FLOAT:
-            (*key_raw).d = *((double *)((char *)key + poptable->key_ids[id] * sizeof(char)));
+            (*key_raw).d = *((double *)((char *)key + poptable->key_ids[id]));
             break;
         case TYP_INT:
-            (*key_raw).i = *((unsigned int *)((char *)key + poptable->key_ids[id] * sizeof(char)));
+            (*key_raw).i = *((unsigned int *)((char *)key + poptable->key_ids[id]));
             break;
         default:
             fprintf(stderr, "Wrong key type: %d\n", poptable->keytypes[id]);
@@ -452,7 +452,6 @@ void member_stack_getkey(member_stack *poptable, void *key, number *key_raw) {
     int i;
     for (i=0; i<poptable->nkey; i++) {
         key_raw[i] = numZERO;
-        printf("Aha key type %d %d\n",i,poptable->keytypes[i]);
         switch (poptable->keytypes[i]) {
             case TYP_FLOAT:
                 key_raw[i].d = *((double *)((char *)key + poptable->key_ids[i]));
@@ -465,12 +464,11 @@ void member_stack_getkey(member_stack *poptable, void *key, number *key_raw) {
                 exit(1);
                 break;
         }
-        printf("OK key type\n");
     }
 }
 
 void member_stack_getnum(member_stack *poptable, void *key, number *num) {
-    void *tmp = (void *)((char *)key + poptable->key_size * sizeof(char));
+    void *tmp = (void *)((char *)key + poptable->key_size);
     *num = numZERO;
     switch (poptable->numtype) {
         case TYP_FLOAT:
@@ -741,12 +739,9 @@ void spop2_step(population pop, double *par, number *survived, number *completed
         // 
         if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) continue;
         //
-        printf("Off\n");
         poptablenext = member_stack_init(pop->nkey, pop->types, pop->stoch);
-        printf("Aha %d\n",i);
         for (j=0, dst = pop->poptable->members; j<pop->poptable->nmember; j++, dst = (void *)((char *)dst + pop->poptable->member_size)) {
             member_stack_getkey(pop->poptable, dst, key);
-            printf("key[0] = %g %g\n",*((double *)dst),key[0].d);
             member_stack_getnum(pop->poptable, dst, &num);
             if (!memcmp(&num,&numZERO,sizeof(number))) continue;
             //
@@ -755,13 +750,10 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             else
                 (*survived).d += num.d;
             //
-            printf("Hmm %i %d %d\n",i,j,pop->poptable->nkey);
             for (dev=0; memcmp(&num,&numZERO,sizeof(number)); ) {
                 memcpy(q2, key, pop->nkey * sizeof(number));
-                printf("q2: %g\n", q2[i].d);
                 if (pop->arbiters[i]->fun_step)
                     q2[i] = pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
-                printf("q2: %g\n", q2[i].d);
                 //
                 if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) {
                     if (popdone) {
@@ -775,7 +767,6 @@ void spop2_step(population pop, double *par, number *survived, number *completed
                         (*survived).d -= num.d;
                     }
                     num = numZERO;
-                    printf("What?\n");
                 } else {
                     p = pop->arbiters[i]->fun_calc(pop->arbiters[i]->fun_haz, dev, q2[i], hp.k, hp.theta, key);
                     pop->fun_update(p, &num, &n2);
@@ -800,17 +791,14 @@ void spop2_step(population pop, double *par, number *survived, number *completed
                     //
                     dev++;
                 }
-                printf("???\n");
                 //
                 if (!hp.stay) break;
             }
-            //
-            if (poptablenext) {
-                printf("What about here?\n");
-                member_stack_free(pop->poptable);
-                pop->poptable = poptablenext;
-                printf("OK\n");
-            }
+        }
+        //
+        if (poptablenext) {
+            member_stack_free(pop->poptable);
+            pop->poptable = poptablenext;
         }
     }
     //
