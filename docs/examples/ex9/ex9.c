@@ -41,7 +41,6 @@ void sim(char stoch, char id) {
 
     number size[5], completed[5][2];
     double par[2];
-    member elm, tmp;
     number eggs;
 
     for (j=0; j<300*tau; j++) {
@@ -51,9 +50,7 @@ void sim(char stoch, char id) {
             spop2_step(pop[i], par, &size[i], completed[i], popdone[i]);
 
             if (i) {
-                HASH_ITER(hh, popdone[i-1][1]->members, elm, tmp) {
-                    spop2_add(pop[i], key, elm->num);
-                }
+                spop2_addpop(pop[i], popdone[i-1][1]);
             }
         }
 
@@ -80,7 +77,7 @@ void sim(char stoch, char id) {
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    if (FALSE)
+    if (TRUE)
         sim(DETERMINISTIC,0);
     else {
         int i;

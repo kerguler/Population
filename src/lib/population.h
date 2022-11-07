@@ -248,6 +248,7 @@ void spop2_empty(population *);
 number spop2_size(population);
 number spop2_remove(population, number *, double);
 char spop2_add(population, number *, number);
+char spop2_addpop(population, population);
 void spop2_step(population, double *, number *, number *, population *);
 void spop2_print(population);
 void spop2_printable(population, int);

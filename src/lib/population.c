@@ -702,6 +702,25 @@ char spop2_add(population pop, number *key_raw, number num) {
     return 0;
 }
 
+char spop2_addpop(population popdst, population popsrc) {
+    if (!popsrc->poptable->nmember) {
+        return 0;
+    }
+    void *src;
+    number *key = (number *)malloc(popsrc->nkey * sizeof(number));
+    number num;
+    int i;
+    for (i=0, src = popsrc->poptable->members; i<popsrc->poptable->nmember; i++, src = (void *)((char *)src + popsrc->poptable->member_size)) {
+        member_stack_getkey(popsrc->poptable, src, key);
+        member_stack_getnum(popsrc->poptable, src, &num);
+        if (!memcmp(&num,&numZERO,sizeof(number))) continue;
+        member_stack_add(popdst->poptable, key, num);
+    }
+    //
+    free(key);
+    return 0;
+}
+
 void spop2_step(population pop, double *par, number *survived, number *completed, population *popdone) {
     int i, j;
     //
