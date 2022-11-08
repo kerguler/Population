@@ -245,8 +245,6 @@ void update_det(double p, number *n, number *n2) {
 \* ----------------------------------------------------------- */
 
 member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
-    printf("Member stack init in\n");
-
     member_stack *poptable = (member_stack *)malloc(sizeof(struct member_stack_st));
     if (!poptable) {
         fprintf(stderr, "Memory allocation problem in member_stack_init:poptable\n");
@@ -271,8 +269,6 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
     poptable->key_size = 0;
     poptable->num_size = (stoch ? sizeof(unsigned int) : sizeof(double))/sizeof(char);
 
-    printf("Member stack init halfway in\n");
-
     int i;
     for (i=0; i<poptable->nkey; i++) {
         poptable->key_ids[i] = poptable->key_size;
@@ -292,11 +288,8 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
         }
     }
 
-    printf("Member stack init halfway out\n");
-
     poptable->member_size = poptable->key_size + poptable->num_size;
     poptable->maxmember = MEMBER_BUFF;
-    printf("Asking for more memory %zu\n", poptable->maxmember * poptable->member_size * sizeof(char));
     poptable->members = (void *)malloc(poptable->maxmember * poptable->member_size * sizeof(char));
     if (!poptable->members) {
         fprintf(stderr, "Memory allocation problem in member_stack_init\n");
@@ -304,49 +297,33 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
     }
     poptable->nmember = 0;
 
-    printf("Member stack init out\n");
-
     return poptable;
 }
 
 void member_stack_free(member_stack *poptable) {
-    printf("Stack free in\n");
-
     free(poptable->keytypes);
     poptable->keytypes = 0;
-    printf("Keytypes freed\n");
     free(poptable->key_ids);
     poptable->key_ids = 0;
-    printf("Key ids freed\n");
     free(poptable->members);
     poptable->members = 0;
-    printf("Members freed\n");
     free(poptable);
     poptable = 0;
-    printf("Poptable freed\n");
-
-    printf("Stack free out\n");
 }
 
 void member_stack_resize(member_stack *poptable) {
     if (poptable->nmember < poptable->maxmember) return;
     if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return;
 
-    printf("Member resize in %u %u %d\n", poptable->nmember, poptable->maxmember, poptable->members ? 1 : 0);
-
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
-    printf("Member resize in %u %u %d %zu\n", poptable->nmember, poptable->maxmember, poptable->members ? 1 : 0, poptable->maxmember * poptable->member_size * sizeof(char));
     if (poptable->members)
         poptable->members = (void *)realloc(poptable->members, poptable->maxmember * poptable->member_size * sizeof(char));
     else
         poptable->members = (void *)malloc(poptable->maxmember * poptable->member_size * sizeof(char));
-    printf("Weird\n");
     if (!poptable->members) {
         fprintf(stderr, "Memory allocation problem in member_stack_resize\n");
         exit(1);
     }
-
-    printf("Member resize out\n");
 }
 
 void *member_stack_search(member_stack *poptable, void *key) {
@@ -360,17 +337,9 @@ void *member_stack_search(member_stack *poptable, void *key) {
 }
 
 void member_stack_add(member_stack *poptable, number *key_raw, number num) {
-    printf("member_stack_add in\n");
-
-    member_stack_resize(poptable);
-    
-    printf("Searching to add\n");
-
     void *key = (void *)malloc(poptable->key_size * sizeof(char));
     member_stack_setkey(poptable, key_raw, key);
     void *dst = member_stack_search(poptable, key);
-
-    printf("Search completed\n");
 
     unsigned int *tmpi;
     double *tmpd;
@@ -392,13 +361,16 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
         }
         free(key);
 
-        printf("member_stack_add increment out\n");
         return;
     }
     //
-    dst = (void *)((char *)(poptable->members) + poptable->nmember * poptable->member_size);
+    poptable->nmember++;
+    member_stack_resize(poptable);
+    //
+    dst = (void *)((char *)(poptable->members) + (poptable->nmember - 1) * poptable->member_size);
     memcpy(dst, key, poptable->key_size * sizeof(char));
     member_stack_setkey(poptable, key_raw, dst);
+    //
     switch (poptable->numtype) {
         case TYP_INT:
             memcpy((char *)dst + poptable->key_size, &num.i, sizeof(unsigned int));
@@ -411,11 +383,8 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
             exit(1);
             break;
     }
-    poptable->nmember++;
     //
     free(key);
-
-    printf("member_stack_add insert out\n");
 }
 
 number member_stack_remove(member_stack *poptable, number *key_raw, double frac) {
@@ -829,9 +798,7 @@ void spop2_step(population pop, double *par, number *survived, number *completed
         // 
         if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) continue;
         //
-        printf("poptablenext in\n");
         poptablenext = member_stack_init(pop->nkey, pop->types, pop->stoch);
-        printf("poptablenext out\n");
         //
         for (j=0, dst = pop->poptable->members; j<pop->poptable->nmember; j++, dst = (void *)((char *)dst + pop->poptable->member_size)) {
             member_stack_getkey(pop->poptable, dst, key);
@@ -890,10 +857,8 @@ void spop2_step(population pop, double *par, number *survived, number *completed
         }
         //
         if (poptablenext) {
-            printf("poptablenext switch in\n");
             member_stack_free(pop->poptable);
             pop->poptable = poptablenext;
-            printf("poptablenext switch out\n");
         }
     }
     //
