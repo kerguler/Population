@@ -296,7 +296,7 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
 
     poptable->member_size = poptable->key_size + poptable->num_size;
     poptable->maxmember = MEMBER_BUFF;
-    printf("Asking for more memory\n");
+    printf("Asking for more memory %zu\n", poptable->maxmember * poptable->member_size * sizeof(char));
     poptable->members = (void *)malloc(poptable->maxmember * poptable->member_size * sizeof(char));
     if (!poptable->members) {
         fprintf(stderr, "Memory allocation problem in member_stack_init\n");
@@ -335,7 +335,7 @@ void member_stack_resize(member_stack *poptable) {
     printf("Member resize in %u %u %d\n", poptable->nmember, poptable->maxmember, poptable->members ? 1 : 0);
 
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
-    printf("Member resize in %u %u %d\n", poptable->nmember, poptable->maxmember, poptable->members ? 1 : 0);
+    printf("Member resize in %u %u %d %zu\n", poptable->nmember, poptable->maxmember, poptable->members ? 1 : 0, poptable->maxmember * poptable->member_size * sizeof(char));
     if (poptable->members)
         poptable->members = (void *)realloc(poptable->members, poptable->maxmember * poptable->member_size * sizeof(char));
     else
