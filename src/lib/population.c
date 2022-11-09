@@ -297,7 +297,21 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
     }
     poptable->nmember = 0;
 
+    poptable->hash = NULL;
+
     return poptable;
+}
+
+void member_hash_free(member_stack *poptable) {
+    member_hash *elm;
+    member_hash *tmp;
+
+    HASH_ITER(hh, poptable->hash, elm, tmp) {
+        HASH_DEL(poptable->hash, elm);
+        // free(elm);
+    }
+
+    poptable->hash = NULL;
 }
 
 void member_stack_free(member_stack *poptable) {
@@ -307,6 +321,7 @@ void member_stack_free(member_stack *poptable) {
     poptable->key_ids = 0;
     free(poptable->members);
     poptable->members = 0;
+    member_hash_free(poptable);
     free(poptable);
     poptable = 0;
 }

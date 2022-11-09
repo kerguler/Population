@@ -195,6 +195,13 @@ void update_det(double p, number *, number *);
 
 #define MEMBER_BUFF 100
 
+typedef struct member_hash_st member_hash;
+struct member_hash_st {
+    void *key;
+    void *num;
+    UT_hash_handle hh;
+};
+
 typedef struct member_stack_st member_stack;
 struct member_stack_st {
     unsigned int nkey;
@@ -207,7 +214,10 @@ struct member_stack_st {
     unsigned int maxmember;
     unsigned int nmember;
     void *members;
+    member_hash *hash;
 };
+
+void member_hash_free(member_stack *);
 
 member_stack *member_stack_init(unsigned int, char *, char);
 void member_stack_free(member_stack *);
