@@ -243,8 +243,9 @@ number *key_init(number *key_raw, unsigned int nkey, char *types) {
 
 void key_add(member *tbl, number *key, number num, unsigned int nkey, char stoch) {
     member qnt = NULL;
+    size_t sz = nkey * sizeof(number);
     if (tbl && *tbl != NULL) {
-        HASH_FIND(hh, *tbl, &key[0], nkey * sizeof(number), qnt);
+        HASH_FIND(hh, *tbl, key, sz, qnt);
     }
     if (tbl && *tbl != NULL && qnt) {
         if (stoch)
@@ -253,9 +254,10 @@ void key_add(member *tbl, number *key, number num, unsigned int nkey, char stoch
             qnt->num.d += num.d;
     } else {
         member elm = (member)calloc(1, sizeof(struct member_st));
-        elm->key = key;
+        elm->key = (number *)calloc(nkey, sizeof(number));
+        memcpy(elm->key, key, sz);
         elm->num = num;
-        HASH_ADD_KEYPTR(hh, *tbl, elm->key, nkey * sizeof(number), elm);
+        HASH_ADD_KEYPTR(hh, *tbl, elm->key, sz, elm);
     }
 }
 
@@ -402,6 +404,7 @@ void spop2_empty(population *pop) {
     member elm, tmp;
     HASH_ITER(hh, (*pop)->members, elm, tmp) {
         HASH_DEL((*pop)->members, elm);
+        member_free(elm);
     }
 }
 
@@ -422,8 +425,8 @@ number spop2_size(population pop) {
 
 number spop2_remove(population pop, number *key, double frac) {
     member qnt = NULL;
-    HASH_FIND(hh, pop->members, &key[0], pop->nkey * sizeof(number), qnt);
-    if (qnt) {
+    HASH_FIND(hh, pop->members, key, pop->nkey * sizeof(number), qnt);
+    if (qnt != NULL) {
         number ret = qnt->num;
         //
         if (pop->stoch) {
@@ -454,9 +457,10 @@ char spop2_add(population pop, number *key_raw, number num) {
 void spop2_step(population pop, double *par, number *survived, number *completed, population *popdone) {
     int i;
     //
+    size_t sz = pop->nkey * sizeof(number);
     hazpar hp;
-    member elm = NULL, tmp = NULL, elm2 = NULL, tmp2 = NULL, poptablenext = NULL;
-    number *q2;
+    member elm = NULL, tmp = NULL, poptablenext = NULL;
+    number *q2 = (number *)malloc(sz);
     number n2 = numZERO;
     unsigned int dev;
     double p;
@@ -495,8 +499,7 @@ void spop2_step(population pop, double *par, number *survived, number *completed
                 (*survived).d += elm->num.d;
             //
             for (dev=0; memcmp(&(elm->num),&numZERO,sizeof(number)); ) {
-                q2 = (number *)malloc(pop->nkey * sizeof(number));
-                memcpy(q2, elm->key, pop->nkey * sizeof(number));
+                memcpy(q2, elm->key, sz);
                 if (pop->arbiters[i]->fun_step)
                     q2[i] = pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
                 //
@@ -537,21 +540,15 @@ void spop2_step(population pop, double *par, number *survived, number *completed
                     dev++;
                 }
                 //
-                //free(q2);
                 if (!hp.stay) break;
             }
-            //
-            if (pop->members) {
-                HASH_ITER(hh, pop->members, elm2, tmp2) {
-                    //printf("Aha\n");
-                    //HASH_DEL(pop->members, elm2);
-                    //printf("Oha\n");
-                    //member_free(elm2);
-                    //printf("Hmm\n");
-                }
-            }
-            if (poptablenext)
-                pop->members = poptablenext;
+        }
+        //
+        if (poptablenext) {
+            if (pop->members) spop2_empty(&pop);
+            pop->members = poptablenext;
         }
     }
+    //
+    free(q2);
 }
