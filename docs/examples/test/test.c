@@ -297,9 +297,8 @@ void sim9() {
      * BUT, IT IS OKAY TO CHANGE THE VALUE!
      */
 
-    //key = 266;
+    key = 266;
     num = 4.14;
-    //elm->key = (void *)(&key);
 
     test *elmtr = NULL;
     unsigned int keytr = 256;
