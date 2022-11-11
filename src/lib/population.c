@@ -245,19 +245,40 @@ void update_det(double p, number *n, number *n2) {
 \* ----------------------------------------------------------- */
 
 void member_hash_free(member_stack *poptable) {
+    if (poptable->hash == NULL) return;
+
     member_hash *elm;
     member_hash *tmp;
-
     HASH_ITER(hh, poptable->hash, elm, tmp) {
         HASH_DEL(poptable->hash, elm);
-        // free(elm);
+        free(elm);
     }
 
     poptable->hash = NULL;
 }
 
 void member_hash_index(member_stack *poptable) {
-    
+    member_hash_free(poptable);
+    //
+    size_t sz = poptable->key_size * sizeof(char);
+    member_hash *elm;
+    void *dst;
+    int i;
+    //
+    for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size)) {
+        elm = (member_hash *)malloc(sizeof(struct member_hash_st));
+        elm->key = (void *)dst;
+        elm->num = (void *)((char *)dst + poptable->key_size);
+        HASH_ADD_KEYPTR(hh, poptable->hash, elm->key, sz, elm);
+    }
+}
+
+void member_hash_add(member_stack *poptable, void *dst) {
+    size_t sz = poptable->key_size * sizeof(char);
+    member_hash *elm = (member_hash *)malloc(sizeof(struct member_hash_st));
+    elm->key = (void *)dst;
+    elm->num = (void *)((char *)dst + poptable->key_size);
+    HASH_ADD_KEYPTR(hh, poptable->hash, elm->key, sz, elm);
 }
 
 /* ----------------------------------------------------------- *\
@@ -332,13 +353,13 @@ void member_stack_free(member_stack *poptable) {
     member_hash_free(poptable);
     free(poptable);
     poptable = 0;
+    //
+    // member_hash_free(poptable);
 }
 
 void member_stack_resize(member_stack *poptable) {
     if (poptable->nmember < poptable->maxmember) return;
     if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return;
-
-    member_hash_free(poptable->hash);
 
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
     if (poptable->members)
@@ -410,6 +431,8 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
             exit(1);
             break;
     }
+    //
+    member_hash_add(poptable, dst);
     //
     free(key);
 }
