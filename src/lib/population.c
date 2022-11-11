@@ -247,11 +247,12 @@ void update_det(double p, number *n, number *n2) {
 void member_hash_free(member_stack *poptable) {
     if (poptable->hash == NULL) return;
 
-    member_hash *elm;
-    member_hash *tmp;
+    member_hash *elm = NULL;
+    member_hash *tmp = NULL;
     HASH_ITER(hh, poptable->hash, elm, tmp) {
         HASH_DEL(poptable->hash, elm);
         free(elm);
+        elm = NULL;
     }
 
     poptable->hash = NULL;
@@ -357,9 +358,9 @@ void member_stack_free(member_stack *poptable) {
     // member_hash_free(poptable);
 }
 
-void member_stack_resize(member_stack *poptable) {
-    if (poptable->nmember < poptable->maxmember) return;
-    if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return;
+char member_stack_resize(member_stack *poptable) {
+    if (poptable->nmember < poptable->maxmember) return 0;
+    if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return 0;
 
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
     if (poptable->members)
@@ -371,17 +372,21 @@ void member_stack_resize(member_stack *poptable) {
         exit(1);
     }
 
-    member_hash_index(poptable);
+    return 1;
 }
 
 void *member_stack_search(member_stack *poptable, void *key) {
-    void *dst;
+    member_hash *dst;
     size_t sz = poptable->key_size * sizeof(char);
+    HASH_FIND(hh, poptable->hash, key, sz, dst);
+    return dst != NULL ? (void *)dst : 0;
+    /*
     int i;
     for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size))
         if (!memcmp(dst, key, sz))
             return dst;
     return 0;
+    */
 }
 
 void member_stack_add(member_stack *poptable, number *key_raw, number num) {
@@ -413,7 +418,7 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
     }
     //
     poptable->nmember++;
-    member_stack_resize(poptable);
+    if (member_stack_resize(poptable)) member_hash_index(poptable);
     //
     dst = (void *)((char *)(poptable->members) + (poptable->nmember - 1) * poptable->member_size);
     memcpy(dst, key, poptable->key_size * sizeof(char));
@@ -460,11 +465,13 @@ number member_stack_remove(member_stack *poptable, number *key_raw, double frac)
             tmpi -= ret.i;
             if (tmpi) {
                 memcpy((char *)dst + poptable->key_size, &tmpi, sizeof(unsigned int));
-            } else if (poptable->nmember > 1) {
-                memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
-                poptable->nmember--;
             } else {
-                poptable->nmember--;
+                if (poptable->nmember > 1) {
+                    memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
+                    poptable->nmember--;
+                } else {
+                    poptable->nmember--;
+                }
             }
             break;
         case TYP_FLOAT:
@@ -488,6 +495,7 @@ number member_stack_remove(member_stack *poptable, number *key_raw, double frac)
     //
     free(key);
     member_stack_resize(poptable);
+    member_hash_index(poptable);
     return ret;
 }
 
@@ -762,6 +770,7 @@ void spop2_empty(population *pop) {
     if (!(*pop)) return;
     (*pop)->poptable->nmember = 0;
     member_stack_resize((*pop)->poptable);
+    member_hash_free((*pop)->poptable);
 }
 
 number spop2_size(population pop) {

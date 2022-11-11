@@ -285,11 +285,19 @@ void sim9() {
     test *hash = NULL;
     unsigned int key = 256;
     double num = 3.14;
+    unsigned int key2 = 266;
+    double num2 = 4.14;
 
     test *elm;
+
     elm = (test *)malloc(sizeof(struct test_st));
     elm->key = (void *)(&key);
     elm->num = (void *)(&num);
+    HASH_ADD_KEYPTR(hh, hash, elm->key, sizeof(unsigned int), elm);
+
+    elm = (test *)malloc(sizeof(struct test_st));
+    elm->key = (void *)(&key2);
+    elm->num = (void *)(&num2);
     HASH_ADD_KEYPTR(hh, hash, elm->key, sizeof(unsigned int), elm);
 
     /*
@@ -297,10 +305,10 @@ void sim9() {
      * BUT, IT IS OKAY TO CHANGE THE VALUE!
      */
 
-    key = 266;
-    num = 4.14;
+    //key = 276;
+    //num = 4.14;
 
-    test *elmtr = NULL;
+    test *elmtr;
     unsigned int keytr = 256;
     HASH_FIND(hh, hash, &keytr, sizeof(unsigned int), elmtr);
     if (elmtr != NULL) {

@@ -222,7 +222,7 @@ void member_hash_index(member_stack *);
 
 member_stack *member_stack_init(unsigned int, char *, char);
 void member_stack_free(member_stack *);
-void member_stack_resize(member_stack *);
+char member_stack_resize(member_stack *);
 void member_stack_setkey(member_stack *, number *, void *);
 void member_stack_getkey_id(member_stack *, void *, int, number *);
 void member_stack_getkey(member_stack *, void *, number *);
