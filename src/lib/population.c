@@ -241,6 +241,26 @@ void update_det(double p, number *n, number *n2) {
 }
 
 /* ----------------------------------------------------------- *\
+ * sPop2 - Member hash handlers
+\* ----------------------------------------------------------- */
+
+void member_hash_free(member_stack *poptable) {
+    member_hash *elm;
+    member_hash *tmp;
+
+    HASH_ITER(hh, poptable->hash, elm, tmp) {
+        HASH_DEL(poptable->hash, elm);
+        // free(elm);
+    }
+
+    poptable->hash = NULL;
+}
+
+void member_hash_index(member_stack *poptable) {
+    
+}
+
+/* ----------------------------------------------------------- *\
  * sPop2 - Member stack handlers
 \* ----------------------------------------------------------- */
 
@@ -302,18 +322,6 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
     return poptable;
 }
 
-void member_hash_free(member_stack *poptable) {
-    member_hash *elm;
-    member_hash *tmp;
-
-    HASH_ITER(hh, poptable->hash, elm, tmp) {
-        HASH_DEL(poptable->hash, elm);
-        // free(elm);
-    }
-
-    poptable->hash = NULL;
-}
-
 void member_stack_free(member_stack *poptable) {
     free(poptable->keytypes);
     poptable->keytypes = 0;
@@ -330,6 +338,8 @@ void member_stack_resize(member_stack *poptable) {
     if (poptable->nmember < poptable->maxmember) return;
     if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return;
 
+    member_hash_free(poptable->hash);
+
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
     if (poptable->members)
         poptable->members = (void *)realloc(poptable->members, poptable->maxmember * poptable->member_size * sizeof(char));
@@ -339,6 +349,8 @@ void member_stack_resize(member_stack *poptable) {
         fprintf(stderr, "Memory allocation problem in member_stack_resize\n");
         exit(1);
     }
+
+    member_hash_index(poptable);
 }
 
 void *member_stack_search(member_stack *poptable, void *key) {

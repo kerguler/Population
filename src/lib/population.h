@@ -218,6 +218,7 @@ struct member_stack_st {
 };
 
 void member_hash_free(member_stack *);
+void member_hash_index(member_stack *);
 
 member_stack *member_stack_init(unsigned int, char *, char);
 void member_stack_free(member_stack *);
