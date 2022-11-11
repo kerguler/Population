@@ -274,10 +274,49 @@ void sim8() {
  * 
 \* ----------------------------------------------------------- */
 
+typedef struct test_st test;
+struct test_st {
+    void *key;
+    void *num;
+    UT_hash_handle hh;
+};
+
+void sim9() {
+    test *hash = NULL;
+    unsigned int key = 256;
+    double num = 3.14;
+
+    test *elm;
+    elm = (test *)malloc(sizeof(struct test_st));
+    elm->key = (void *)(&key);
+    elm->num = (void *)(&num);
+    HASH_ADD_KEYPTR(hh, hash, elm->key, sizeof(unsigned int), elm);
+
+    /*
+     * NOT ALLOWED TO CHANGE THE KEY!
+     * BUT, IT IS OKAY TO CHANGE THE VALUE!
+     */
+
+    //key = 266;
+    num = 4.14;
+    //elm->key = (void *)(&key);
+
+    test *elmtr = NULL;
+    unsigned int keytr = 256;
+    HASH_FIND(hh, hash, &keytr, sizeof(unsigned int), elmtr);
+    if (elmtr != NULL) {
+        printf("%u -> %g\n", *(unsigned int *)elmtr->key, *(double *)elmtr->num);
+    }
+}
+
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
+
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    sim8();
+    sim9();
 
     return 0;
 }
