@@ -261,24 +261,24 @@ void member_hash_free(member_stack *poptable) {
 void member_hash_index(member_stack *poptable) {
     member_hash_free(poptable);
     //
-    size_t sz = poptable->key_size * sizeof(char);
+    size_t sz = poptable->nkey * sizeof(number);
     member_hash *elm;
-    void *dst;
+    number *dst;
     int i;
     //
-    for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size)) {
-        elm = (member_hash *)malloc(sizeof(struct member_hash_st));
-        elm->key = (void *)dst;
-        elm->num = (void *)((char *)dst + poptable->key_size);
+    for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst+=poptable->member_size) {
+        elm = (member_hash *)calloc(1, sizeof(struct member_hash_st));
+        elm->key = dst;
+        elm->num = dst + poptable->nkey;
         HASH_ADD_KEYPTR(hh, poptable->hash, elm->key, sz, elm);
     }
 }
 
-void member_hash_add(member_stack *poptable, void *dst) {
-    size_t sz = poptable->key_size * sizeof(char);
+void member_hash_add(member_stack *poptable, number *dst) {
+    size_t sz = poptable->nkey * sizeof(number);
     member_hash *elm = (member_hash *)malloc(sizeof(struct member_hash_st));
-    elm->key = (void *)dst;
-    elm->num = (void *)((char *)dst + poptable->key_size);
+    elm->key = dst;
+    elm->num = dst + poptable->nkey;
     HASH_ADD_KEYPTR(hh, poptable->hash, elm->key, sz, elm);
 }
 
@@ -302,25 +302,13 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
     }
     poptable->numtype = stoch ? TYP_INT : TYP_FLOAT;
 
-    poptable->key_ids = (unsigned int *)malloc(poptable->nkey * sizeof(unsigned int));
-    if (!poptable->key_ids) {
-        fprintf(stderr, "Memory allocation problem in member_stack_init:key_ids\n");
-        exit(1);
-    }
-
-    poptable->key_size = 0;
-    poptable->num_size = (stoch ? sizeof(unsigned int) : sizeof(double))/sizeof(char);
-
     int i;
     for (i=0; i<poptable->nkey; i++) {
-        poptable->key_ids[i] = poptable->key_size;
         switch (types[i]) {
             case ACC_ARBITER:
-                poptable->key_size += sizeof(double)/sizeof(char);
                 poptable->keytypes[i] = TYP_FLOAT;
                 break;
             case AGE_ARBITER:
-                poptable->key_size += sizeof(unsigned int)/sizeof(char);
                 poptable->keytypes[i] = TYP_INT;
                 break;
             default:
@@ -330,9 +318,10 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
         }
     }
 
-    poptable->member_size = poptable->key_size + poptable->num_size;
+    poptable->member_size = poptable->nkey + 1;
+
     poptable->maxmember = MEMBER_BUFF;
-    poptable->members = (void *)malloc(poptable->maxmember * poptable->member_size * sizeof(char));
+    poptable->members = (number *)calloc(poptable->maxmember * poptable->member_size, sizeof(number));
     if (!poptable->members) {
         fprintf(stderr, "Memory allocation problem in member_stack_init\n");
         exit(1);
@@ -347,8 +336,6 @@ member_stack *member_stack_init(unsigned int nkey, char *types, char stoch) {
 void member_stack_free(member_stack *poptable) {
     free(poptable->keytypes);
     poptable->keytypes = 0;
-    free(poptable->key_ids);
-    poptable->key_ids = 0;
     free(poptable->members);
     poptable->members = 0;
     member_hash_free(poptable);
@@ -363,10 +350,7 @@ char member_stack_resize(member_stack *poptable) {
     if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return 0;
 
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
-    if (poptable->members)
-        poptable->members = (void *)realloc(poptable->members, poptable->maxmember * poptable->member_size * sizeof(char));
-    else
-        poptable->members = (void *)malloc(poptable->maxmember * poptable->member_size * sizeof(char));
+    poptable->members = (number *)calloc(poptable->maxmember * poptable->member_size, sizeof(number));
     if (!poptable->members) {
         fprintf(stderr, "Memory allocation problem in member_stack_resize\n");
         exit(1);
@@ -375,44 +359,32 @@ char member_stack_resize(member_stack *poptable) {
     return 1;
 }
 
-void *member_stack_search(member_stack *poptable, void *key) {
+number *member_stack_search(member_stack *poptable, number *key) {
     member_hash *dst;
-    size_t sz = poptable->key_size * sizeof(char);
+    size_t sz = poptable->nkey * sizeof(number);
     HASH_FIND(hh, poptable->hash, key, sz, dst);
-    return dst != NULL ? (void *)dst : 0;
-    /*
-    int i;
-    for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size))
-        if (!memcmp(dst, key, sz))
-            return dst;
-    return 0;
-    */
+    return dst != NULL ? dst->key : 0;
 }
 
-void member_stack_add(member_stack *poptable, number *key_raw, number num) {
-    void *key = (void *)malloc(poptable->key_size * sizeof(char));
-    member_stack_setkey(poptable, key_raw, key);
-    void *dst = member_stack_search(poptable, key);
+void member_stack_add(member_stack *poptable, number *key, number num) {
+    number *dst = member_stack_search(poptable, key);
 
-    unsigned int *tmpi;
-    double *tmpd;
+    number *tmp;
     //
     if (dst) {
+        tmp = dst + poptable->nkey;
         switch (poptable->numtype) {
             case TYP_INT:
-                tmpi = (unsigned int *)((char *)dst + poptable->key_size);
-                *tmpi += num.i;
+                (*tmp).i += num.i;
                 break;
             case TYP_FLOAT:
-                tmpd = (double *)((char *)dst + poptable->key_size);
-                *tmpd += num.d;
+                (*tmp).d += num.d;
                 break;
             default:
                 fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
                 exit(1);
                 break;
         }
-        free(key);
 
         return;
     }
@@ -420,16 +392,15 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
     poptable->nmember++;
     if (member_stack_resize(poptable)) member_hash_index(poptable);
     //
-    dst = (void *)((char *)(poptable->members) + (poptable->nmember - 1) * poptable->member_size);
-    memcpy(dst, key, poptable->key_size * sizeof(char));
-    member_stack_setkey(poptable, key_raw, dst);
+    dst = poptable->members + (poptable->nmember - 1) * poptable->member_size;
+    memcpy(dst, key, poptable->nkey * sizeof(number));
     //
     switch (poptable->numtype) {
         case TYP_INT:
-            memcpy((char *)dst + poptable->key_size, &num.i, sizeof(unsigned int));
+            memcpy(dst + poptable->nkey, &num.i, sizeof(number));
             break;
         case TYP_FLOAT:
-            memcpy((char *)dst + poptable->key_size, &num.d, sizeof(double));
+            memcpy(dst + poptable->nkey, &num.d, sizeof(number));
             break;
         default:
             fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
@@ -438,14 +409,10 @@ void member_stack_add(member_stack *poptable, number *key_raw, number num) {
     }
     //
     member_hash_add(poptable, dst);
-    //
-    free(key);
 }
 
-number member_stack_remove(member_stack *poptable, number *key_raw, double frac) {
-    void *key = (void *)malloc(poptable->key_size * sizeof(char));
-    member_stack_setkey(poptable, key_raw, key);
-    void *dst = member_stack_search(poptable, key);
+number member_stack_remove(member_stack *poptable, number *key, double frac) {
+    number *dst = member_stack_search(poptable, key);
     //
     if (!dst) {
         free(key);
@@ -453,21 +420,15 @@ number member_stack_remove(member_stack *poptable, number *key_raw, double frac)
     }
     //
     number ret = numZERO;
-    void *pnt = (void *)((char *)dst + poptable->key_size);
-    //
-    unsigned int tmpi;
-    double tmpd;
+    number *pnt = dst + poptable->nkey;
     //
     switch (poptable->numtype) {
         case TYP_INT:
-            tmpi = *(unsigned int *)pnt;
-            ret.i = gsl_ran_binomial(RANDOM, frac, tmpi);
-            tmpi -= ret.i;
-            if (tmpi) {
-                memcpy((char *)dst + poptable->key_size, &tmpi, sizeof(unsigned int));
-            } else {
+            ret.i = gsl_ran_binomial(RANDOM, frac, (*pnt).i);
+            (*pnt).i -= ret.i;
+            if ((*pnt).i == 0) {
                 if (poptable->nmember > 1) {
-                    memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
+                    memcpy(dst, poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(number));
                     poptable->nmember--;
                 } else {
                     poptable->nmember--;
@@ -475,16 +436,15 @@ number member_stack_remove(member_stack *poptable, number *key_raw, double frac)
             }
             break;
         case TYP_FLOAT:
-            tmpd = *(double *)pnt;
-            ret.d = frac * tmpd;
-            tmpd -= ret.d;
-            if (tmpd) {
-                memcpy((char *)dst + poptable->key_size, &tmpd, sizeof(double));
-            } else if (poptable->nmember > 1) {
-                memcpy(dst, (char *)poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(char));
-                poptable->nmember--;
-            } else {
-                poptable->nmember--;
+            ret.d = frac * (*pnt).d;
+            (*pnt).d -= ret.d;
+            if ((*pnt).d == 0.0) {
+                if (poptable->nmember > 1) {
+                    memcpy(dst, poptable->members + (poptable->nmember - 1) * poptable->member_size, poptable->member_size * sizeof(number));
+                    poptable->nmember--;
+                } else {
+                    poptable->nmember--;
+                }
             }
             break;
         default:
@@ -493,94 +453,23 @@ number member_stack_remove(member_stack *poptable, number *key_raw, double frac)
             break;
     }
     //
-    free(key);
     member_stack_resize(poptable);
     member_hash_index(poptable);
     return ret;
 }
 
-void member_stack_setkey(member_stack *poptable, number *key_raw, void *dst) {
-    int i;
-    for (i=0; i<poptable->nkey; i++) {
-        switch (poptable->keytypes[i]) {
-            case TYP_FLOAT:
-                *((double *)((char *)dst + poptable->key_ids[i])) = key_raw[i].d;
-                break;
-            case TYP_INT:
-                *((unsigned int *)((char *)dst + poptable->key_ids[i])) = key_raw[i].i;
-                break;
-            default:
-                fprintf(stderr, "Wrong key type: %d\n", poptable->keytypes[i]);
-                exit(1);
-                break;
-        }
-    }
-}
-
-void member_stack_getkey_id(member_stack *poptable, void *key, int id, number *key_raw) {
-    *key_raw = numZERO;
-    switch (poptable->keytypes[id]) {
-        case TYP_FLOAT:
-            (*key_raw).d = *((double *)((char *)key + poptable->key_ids[id]));
-            break;
-        case TYP_INT:
-            (*key_raw).i = *((unsigned int *)((char *)key + poptable->key_ids[id]));
-            break;
-        default:
-            fprintf(stderr, "Wrong key type: %d\n", poptable->keytypes[id]);
-            exit(1);
-            break;
-    }
-}
-
-void member_stack_getkey(member_stack *poptable, void *key, number *key_raw) {
-    int i;
-    for (i=0; i<poptable->nkey; i++) {
-        key_raw[i] = numZERO;
-        switch (poptable->keytypes[i]) {
-            case TYP_FLOAT:
-                key_raw[i].d = *((double *)((char *)key + poptable->key_ids[i]));
-                break;
-            case TYP_INT:
-                key_raw[i].i = *((unsigned int *)((char *)key + poptable->key_ids[i]));
-                break;
-            default:
-                fprintf(stderr, "Wrong key type: %d\n", poptable->keytypes[i]);
-                exit(1);
-                break;
-        }
-    }
-}
-
-void member_stack_getnum(member_stack *poptable, void *key, number *num) {
-    void *tmp = (void *)((char *)key + poptable->key_size);
-    *num = numZERO;
-    switch (poptable->numtype) {
-        case TYP_FLOAT:
-            (*num).d = *((double *)tmp);
-            break;
-        case TYP_INT:
-            (*num).i = *((unsigned int *)tmp);
-            break;
-        default:
-            fprintf(stderr, "Wrong key type: %d\n", poptable->numtype);
-            exit(1);
-            break;
-    }
-}
-
 void member_stack_numsum(member_stack *poptable, number *numsum) {
     *numsum = numZERO;
-    void *dst;
+    number *dst;
     int i;
     switch (poptable->numtype) {
         case TYP_INT:
-            for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size))
-                (*numsum).i += *(unsigned int *)((char *)dst + poptable->key_size);
+            for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst+=poptable->member_size)
+                (*numsum).i += (*(dst + poptable->nkey)).i;
             break;
         case TYP_FLOAT:
-            for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst=(void *)((char *)dst + poptable->member_size))
-                (*numsum).d += *(double *)((char *)dst + poptable->key_size);
+            for (i=0, dst=poptable->members; i<poptable->nmember; i++, dst+=poptable->member_size)
+                (*numsum).d += (*(dst + poptable->nkey)).d;
             break;
         default:
             fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
@@ -589,18 +478,15 @@ void member_stack_numsum(member_stack *poptable, number *numsum) {
     }
 }
 
-void member_stack_printkey(member_stack *poptable, void *key) {
-    void *tmp;
+void member_stack_printkey(member_stack *poptable, number *key) {
     int i;
-    for (i=0, tmp=key; i<poptable->nkey; i++) {
+    for (i=0; i<poptable->nkey; i++) {
         switch (poptable->keytypes[i]) {
             case TYP_FLOAT:
-                printf("%s%g", i ? "," : "", *((double *)tmp));
-                tmp = (char *)tmp + sizeof(double)/sizeof(char);
+                printf("%s%g", i ? "," : "", key[i].d);
                 break;
             case TYP_INT:
-                printf("%s%u", i ? "," : "", *((unsigned int *)tmp));
-                tmp = (char *)tmp + sizeof(unsigned int)/sizeof(char);
+                printf("%s%u", i ? "," : "", key[i].i);
                 break;
             default:
                 fprintf(stderr, "Wrong key type: %d\n", poptable->keytypes[i]);
@@ -610,14 +496,14 @@ void member_stack_printkey(member_stack *poptable, void *key) {
     }
 }
 
-void member_stack_printnum(member_stack *poptable, void *key) {
-    void *tmp = (void *)((char *)key + poptable->key_size * sizeof(char));
+void member_stack_printnum(member_stack *poptable, number *key) {
+    number *tmp = key + poptable->nkey;
     switch (poptable->numtype) {
         case TYP_FLOAT:
-            printf("%g", *((double *)tmp));
+            printf("%g", (*tmp).d);
             break;
         case TYP_INT:
-            printf("%u", *((unsigned int *)tmp));
+            printf("%u", (*tmp).i);
             break;
         default:
             fprintf(stderr, "Wrong key type: %d\n", poptable->numtype);
@@ -631,17 +517,17 @@ void member_stack_print(member_stack *poptable) {
         printf("Empty population\n");
         return;
     }
-    void *dst;
+    number *dst;
     int i;
-    for (i=0, dst = poptable->members; i<poptable->nmember; i++, dst = (void *)((char *)dst + poptable->member_size)) {
+    for (i=0, dst = poptable->members; i<poptable->nmember; i++, dst+=poptable->member_size) {
         printf("Member{ (");
         member_stack_printkey(poptable, dst);
         switch (poptable->numtype) {
             case TYP_INT:
-                printf(") => %u }\n", *(unsigned int *)((char *)dst+poptable->key_size));
+                printf(") => %u }\n", (*(dst+poptable->nkey)).i);
                 break;
             case TYP_FLOAT:
-                printf(") => %g }\n", *(double *)((char *)dst+poptable->key_size));
+                printf(") => %g }\n", (*(dst+poptable->nkey)).d);
                 break;
             default:
                 fprintf(stderr, "Wrong num type: %d\n", poptable->numtype);
@@ -655,9 +541,9 @@ void member_stack_printable(member_stack *poptable, int tm) {
     if (!poptable->nmember) {
         return;
     }
-    void *dst;
+    number *dst;
     int i;
-    for (i=0, dst = poptable->members; i<poptable->nmember; i++, dst = (void *)((char *)dst + poptable->member_size)) {
+    for (i=0, dst = poptable->members; i<poptable->nmember; i++, dst+=poptable->member_size) {
         printf("%d,",tm);
         member_stack_printkey(poptable, dst);
         printf(",");
@@ -792,32 +678,23 @@ char spop2_addpop(population popdst, population popsrc) {
     if (!popsrc->poptable->nmember) {
         return 0;
     }
-    void *src;
-    number *key = (number *)malloc(popsrc->nkey * sizeof(number));
+    number *src;
     number num;
     int i;
-    for (i=0, src = popsrc->poptable->members; i<popsrc->poptable->nmember; i++, src = (void *)((char *)src + popsrc->poptable->member_size)) {
-        member_stack_getkey(popsrc->poptable, src, key);
-        member_stack_getnum(popsrc->poptable, src, &num);
+    for (i=0, src=popsrc->poptable->members; i<popsrc->poptable->nmember; i++, src+=popsrc->poptable->member_size) {
+        num = *(src+popsrc->nkey);
         if (!memcmp(&num,&numZERO,sizeof(number))) continue;
-        member_stack_add(popdst->poptable, key, num);
+        member_stack_add(popdst->poptable, src, num);
     }
-    //
-    free(key);
     return 0;
 }
 
 void spop2_foreach(population pop, void (*func)(number *key, number num)) {
-    number *key = (number *)malloc(pop->nkey * sizeof(number));
-    number num;
-    void *dst;
+    number *dst;
     int i;
-    for (i=0, dst = pop->poptable->members; i<pop->poptable->nmember; i++, dst = (void *)((char *)dst + pop->poptable->member_size)) {
-        member_stack_getkey(pop->poptable, dst, key);
-        member_stack_getnum(pop->poptable, dst, &num);
-        func(key, num);        
+    for (i=0, dst=pop->poptable->members; i<pop->poptable->nmember; i++, dst+=pop->poptable->member_size) {
+        func(dst, *(dst+pop->poptable->nkey));
     }
-    free(key);
 }
 
 void spop2_step(population pop, double *par, number *survived, number *completed, population *popdone) {
@@ -828,10 +705,9 @@ void spop2_step(population pop, double *par, number *survived, number *completed
     number *q2 = (number *)malloc(pop->nkey * sizeof(number));
     number n2 = numZERO;
     double p;
-    number *key = (number *)malloc(pop->nkey * sizeof(number));
+    number *key;
     number num;
     member_stack *poptablenext;
-    void *dst;
     //
     for (i=0; i < pop->nkey; i++) {
         *survived = numZERO;
@@ -859,9 +735,8 @@ void spop2_step(population pop, double *par, number *survived, number *completed
         //
         poptablenext = member_stack_init(pop->nkey, pop->types, pop->stoch);
         //
-        for (j=0, dst = pop->poptable->members; j<pop->poptable->nmember; j++, dst = (void *)((char *)dst + pop->poptable->member_size)) {
-            member_stack_getkey(pop->poptable, dst, key);
-            member_stack_getnum(pop->poptable, dst, &num);
+        for (j=0, key=pop->poptable->members; j<pop->poptable->nmember; j++, key+=pop->poptable->member_size) {
+            num = *(key+pop->poptable->nkey);
             if (!memcmp(&num,&numZERO,sizeof(number))) continue;
             //
             if (pop->stoch)
@@ -922,5 +797,4 @@ void spop2_step(population pop, double *par, number *survived, number *completed
     }
     //
     free(q2);
-    free(key);
 }

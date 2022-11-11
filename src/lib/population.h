@@ -197,8 +197,8 @@ void update_det(double p, number *, number *);
 
 typedef struct member_hash_st member_hash;
 struct member_hash_st {
-    void *key;
-    void *num;
+    number *key;
+    number *num;
     UT_hash_handle hh;
 };
 
@@ -207,32 +207,26 @@ struct member_stack_st {
     unsigned int nkey;
     char *keytypes;
     char numtype;
-    unsigned int *key_ids;
-    unsigned int key_size;
-    unsigned int num_size;
     unsigned int member_size;
     unsigned int maxmember;
     unsigned int nmember;
-    void *members;
+    number *members;
     member_hash *hash;
 };
 
 void member_hash_free(member_stack *);
 void member_hash_index(member_stack *);
+void member_hash_add(member_stack *, number *);
 
 member_stack *member_stack_init(unsigned int, char *, char);
 void member_stack_free(member_stack *);
 char member_stack_resize(member_stack *);
-void member_stack_setkey(member_stack *, number *, void *);
-void member_stack_getkey_id(member_stack *, void *, int, number *);
-void member_stack_getkey(member_stack *, void *, number *);
-void member_stack_getnum(member_stack *, void *, number *);
-void *member_stack_search(member_stack *, void *);
+number *member_stack_search(member_stack *, number *);
 void member_stack_add(member_stack *, number *, number);
 number member_stack_remove(member_stack *, number *, double);
 void member_stack_numsum(member_stack *, number *);
-void member_stack_printkey(member_stack *, void *);
-void member_stack_printnum(member_stack *, void *);
+void member_stack_printkey(member_stack *, number *);
+void member_stack_printnum(member_stack *, number *);
 void member_stack_print(member_stack *);
 void member_stack_printable(member_stack *, int);
 
