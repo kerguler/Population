@@ -175,7 +175,7 @@ void sim5() {
     }
 
     for (i=0; i<N; i++) {
-        double *dst = (double *)((char *)pop->poptable->members + i * pop->poptable->member_size + pop->poptable->key_size);
+        double *dst = (double *)((char *)pop->poptable->members + i * pop->poptable->member_size + pop->poptable->nkey);
         (*dst)++;
     }
 }
@@ -248,28 +248,6 @@ void sim7() {
     printf("Size: %g\n", spop2_size(pop).d);
 }
 
-void sim8() {
-    char arbiters[2] = {ACC_ERLANG, STOP};
-    population pop = spop2_init(arbiters, DETERMINISTIC);
-
-    {
-    number key_raw = {.d=0.0};
-    number num = {.d=100.0};
-    spop2_add(pop, &key_raw, num);
-    }
-
-    double par[2] = {10.0, 2.0};
-    number survived;
-    number completed;
-    spop2_step(pop, par, &survived, &completed, 0);
-
-    int i;
-    for (i=0; i<20; i++) {
-        spop2_step(pop, par, &survived, &completed, 0);
-        printf("%d,%g,%g\n",i,survived.d,completed.d);
-    }
-}
-
 /* ----------------------------------------------------------- *\
  * 
 \* ----------------------------------------------------------- */
@@ -320,10 +298,58 @@ void sim9() {
  * 
 \* ----------------------------------------------------------- */
 
+void sim10() {
+    char arbiters[2] = {ACC_ERLANG, STOP};
+    population pop = spop2_init(arbiters, DETERMINISTIC);
+
+    {
+    number key_raw[1] = {{.d=0.4}};
+    number num = {.d=0.7};
+    spop2_add(pop, key_raw, num);
+    }
+
+    double par[2] = {10.0, 2.0};
+    number survived;
+    number completed;
+    spop2_step(pop, par, &survived, &completed, 0);
+
+    spop2_print(pop);
+    spop2_printable(pop,0);
+    printf("Size: %g\n", spop2_size(pop).d);
+    printf("Survived: %g\n", survived.d);
+    printf("Completed: %g\n", completed.d);
+}
+
+/* ----------------------------------------------------------- *\
+ * 
+\* ----------------------------------------------------------- */
+
+void sim8() {
+    char arbiters[2] = {AGE_FIXED, STOP};
+    population pop = spop2_init(arbiters, DETERMINISTIC);
+
+    {
+    number key_raw = {.i=0};
+    number num = {.d=100.0};
+    spop2_add(pop, &key_raw, num);
+    }
+
+    double par[2] = {10.0, 2.0};
+    number survived;
+    number completed;
+    spop2_step(pop, par, &survived, &completed, 0);
+
+    int i;
+    for (i=0; i<20; i++) {
+        spop2_step(pop, par, &survived, &completed, 0);
+        printf("%d,%g,%g\n",i,survived.d,completed.d);
+    }
+}
+
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    sim9();
+    sim8();
 
     return 0;
 }
