@@ -347,6 +347,7 @@ char member_stack_resize(member_stack *poptable) {
     if (poptable->nmember < poptable->maxmember) return 0;
     if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return 0;
 
+    size_t sz = poptable->maxmember * poptable->member_size * sizeof(number);
     number *tmp = poptable->members;
 
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
@@ -355,7 +356,7 @@ char member_stack_resize(member_stack *poptable) {
         fprintf(stderr, "Memory allocation problem in member_stack_resize\n");
         exit(1);
     }
-    memcpy(poptable->members, tmp, poptable->maxmember * poptable->member_size * sizeof(number));
+    memcpy(poptable->members, tmp, sz);
 
     member_hash_free(poptable);
     member_hash_index(poptable);
