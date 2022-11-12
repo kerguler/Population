@@ -68,7 +68,7 @@ void sim(char stoch, char id) {
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    if (FALSE)
+    if (TRUE)
         sim(DETERMINISTIC,0);
     else {
         int i;
