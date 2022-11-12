@@ -259,10 +259,6 @@ void member_hash_free(member_stack *poptable) {
 }
 
 void member_hash_index(member_stack *poptable) {
-    printf("member_hash_index in\n");
-
-    member_hash_free(poptable);
-    //
     size_t sz = poptable->nkey * sizeof(number);
     member_hash *elm;
     number *dst;
@@ -274,8 +270,6 @@ void member_hash_index(member_stack *poptable) {
         elm->num = dst + poptable->nkey;
         HASH_ADD_KEYPTR(hh, poptable->hash, elm->key, sz, elm);
     }
-
-    printf("member_hash_index out\n");
 }
 
 void member_hash_add(member_stack *poptable, number *dst) {
@@ -353,13 +347,20 @@ char member_stack_resize(member_stack *poptable) {
     if (poptable->nmember < poptable->maxmember) return 0;
     if (poptable->maxmember - poptable->nmember < MEMBER_BUFF) return 0;
 
+    number *tmp = poptable->members;
+
     poptable->maxmember = poptable->nmember + MEMBER_BUFF;
     poptable->members = (number *)calloc(poptable->maxmember * poptable->member_size, sizeof(number));
     if (!poptable->members) {
         fprintf(stderr, "Memory allocation problem in member_stack_resize\n");
         exit(1);
     }
+    memcpy(poptable->members, tmp, poptable->maxmember * poptable->member_size * sizeof(number));
 
+    member_hash_free(poptable);
+    member_hash_index(poptable);
+
+    free(tmp);
     return 1;
 }
 
@@ -394,7 +395,7 @@ void member_stack_add(member_stack *poptable, number *key, number num) {
     }
     //
     poptable->nmember++;
-    if (member_stack_resize(poptable)) member_hash_index(poptable);
+    member_stack_resize(poptable);
     //
     dst = poptable->members + (poptable->nmember - 1) * poptable->member_size;
     memcpy(dst, key, poptable->nkey * sizeof(number));
@@ -458,7 +459,6 @@ number member_stack_remove(member_stack *poptable, number *key, double frac) {
     }
     //
     member_stack_resize(poptable);
-    member_hash_index(poptable);
     return ret;
 }
 
@@ -660,7 +660,6 @@ void spop2_empty(population *pop) {
     if (!(*pop)) return;
     (*pop)->poptable->nmember = 0;
     member_stack_resize((*pop)->poptable);
-    member_hash_free((*pop)->poptable);
 }
 
 number spop2_size(population pop) {
