@@ -259,6 +259,8 @@ void member_hash_free(member_stack *poptable) {
 }
 
 void member_hash_index(member_stack *poptable) {
+    printf("member_hash_index in\n");
+
     member_hash_free(poptable);
     //
     size_t sz = poptable->nkey * sizeof(number);
@@ -272,6 +274,8 @@ void member_hash_index(member_stack *poptable) {
         elm->num = dst + poptable->nkey;
         HASH_ADD_KEYPTR(hh, poptable->hash, elm->key, sz, elm);
     }
+
+    printf("member_hash_index out\n");
 }
 
 void member_hash_add(member_stack *poptable, number *dst) {
@@ -702,7 +706,7 @@ void spop2_step(population pop, double *par, number *survived, number *completed
     //
     hazpar hp;
     unsigned int dev;
-    number *q2 = (number *)malloc(pop->nkey * sizeof(number));
+    number *q2 = (number *)calloc(pop->nkey, sizeof(number));
     number n2 = numZERO;
     double p;
     number *key;
@@ -736,7 +740,7 @@ void spop2_step(population pop, double *par, number *survived, number *completed
         poptablenext = member_stack_init(pop->nkey, pop->types, pop->stoch);
         //
         for (j=0, key=pop->poptable->members; j<pop->poptable->nmember; j++, key+=pop->poptable->member_size) {
-            num = *(key+pop->poptable->nkey);
+            num = key[pop->poptable->nkey];
             if (!memcmp(&num,&numZERO,sizeof(number))) continue;
             //
             if (pop->stoch)

@@ -4,7 +4,8 @@
 #include "population.h"
 
 void sim() {
-    char arbiters[3] = {AGE_CONST, ACC_ERLANG, STOP};
+    //char arbiters[3] = {AGE_CONST, ACC_ERLANG, STOP};
+    char arbiters[3] = {ACC_ERLANG, STOP};
     population pop = spop2_init(arbiters, DETERMINISTIC);
 
     number key[2] = {numZERO,numZERO};
@@ -13,8 +14,9 @@ void sim() {
 
     printf("%d,%g,%g,%g\n",0,spop2_size(pop).d,0.0,0.0);
 
-    number size, completed[2];
-    double par[4] = {1.0/60.0, 30.0, 5.0};
+    number size, completed[2] = {numZERO,numZERO};
+    //double par[3] = {1.0/60.0, 30.0, 5.0};
+    double par[3] = {30.0, 5.0};
 
     int i;
     for (i=0; i<100; i++) {

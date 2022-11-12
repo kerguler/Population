@@ -325,24 +325,34 @@ void sim10() {
 \* ----------------------------------------------------------- */
 
 void sim8() {
-    char arbiters[2] = {AGE_FIXED, STOP};
+    int i;
+
+    char arbiters[2] = {ACC_ERLANG, STOP};
     population pop = spop2_init(arbiters, DETERMINISTIC);
 
     {
-    number key_raw = {.i=0};
+    number key_raw = {.d=0.0};
     number num = {.d=100.0};
     spop2_add(pop, &key_raw, num);
     }
 
-    double par[2] = {10.0, 2.0};
+    //spop2_printable(pop,0);
+    //printf("\n");
+
+    double par[2] = {30.0, 5.0};
     number survived;
     number completed;
-    spop2_step(pop, par, &survived, &completed, 0);
+    //spop2_step(pop, par, &survived, &completed, 0);
 
-    int i;
+    //spop2_printable(pop,1);
+    //printf("\n");
+
     for (i=0; i<20; i++) {
         spop2_step(pop, par, &survived, &completed, 0);
-        printf("%d,%g,%g\n",i,survived.d,completed.d);
+        printf("%d,%g,%g\n",i+1,survived.d,completed.d);
+        printf("\n");
+        spop2_printable(pop,i+2);
+        printf("\n");
     }
 }
 
