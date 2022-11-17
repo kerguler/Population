@@ -377,6 +377,11 @@ population spop2_init(char *arbiters, char stoch) {
                 pop->types[i] = AGE_ARBITER;
                 pop->numpars[i] = 0;
                 break;
+            case PRB_CONST:
+                pop->arbiters[i] = arbiter_init(age_const_pars, age_const_haz, age_const_calc, 0);
+                pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 1;
+                break;
             default:
                 fprintf(stderr, "Development time distribution %d not yet implemented\n", arbiters[i]);
                 exit(1);
