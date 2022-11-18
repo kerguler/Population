@@ -14,7 +14,7 @@ void sim(char stoch, char id) {
     double q = 8.5;
     double tau = 24.0;
 
-    char arbiters[3] = {PRB_CONST, AGE_FIXED, STOP};
+    char arbiters[3] = {NOAGE_CONST, AGE_FIXED, STOP};
 
     population pop[5];
     for (i=0; i<5; i++)
