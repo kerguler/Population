@@ -453,6 +453,8 @@ number spop2_remove(population pop, number *key, double frac) {
 }
 
 char spop2_add(population pop, number *key_raw, number num) {
+    if (!((pop->stoch && num.i > 0) || (!pop->stoch && num.d > 0.0))) return 0;
+    //
     number *key = key_init(key_raw, pop->nkey, pop->types);
     key_add(&(pop->members), key, num, pop->nkey, pop->stoch);
     //
