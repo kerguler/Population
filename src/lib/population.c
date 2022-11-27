@@ -36,6 +36,11 @@ void spop2_random_init() {
     RANDOM = get_RAND_GSL();
 }
 
+void spop2_random_destroy() {
+    rng_destroy();
+    RANDOM = 0;
+}
+
 /* ----------------------------------------------------------- *\
  * EPS
 \* ----------------------------------------------------------- */
@@ -457,6 +462,15 @@ char spop2_add(population pop, number *key_raw, number num) {
     //
     number *key = key_init(key_raw, pop->nkey, pop->types);
     key_add(&(pop->members), key, num, pop->nkey, pop->stoch);
+    //
+    return 0;
+}
+
+char spop2_addpop(population popto, population popfrom) {
+    member elm, tmp;
+    HASH_ITER(hh, popfrom->members, elm, tmp) {
+        spop2_add(popto, elm->key, elm->num);
+    }    
     //
     return 0;
 }

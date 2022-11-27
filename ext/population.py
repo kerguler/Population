@@ -12,23 +12,21 @@ class model:
         #
         self.init = self.dylib.init
         self.init.restype = None
-        self.init.argtypes = [array_1d_int, array_1d_int, array_1d_int]
-        self.numenv = numpy.arange(1,dtype=numpy.int32)
+        self.init.argtypes = [array_1d_int, array_1d_int]
         self.numpar = numpy.arange(1,dtype=numpy.int32)
         self.nummet = numpy.arange(1,dtype=numpy.int32)
-        ret = self.init(self.numenv,self.numpar,self.nummet)
-        self.numenv = self.numenv[0]
+        ret = self.init(self.numpar,self.nummet)
         self.numpar = self.numpar[0]
         self.nummet = self.nummet[0]
         #
         atexit.register(self.dylib.destroy)
         #
         try:
-            self.parameters = self.dylib.parameters
-            self.parameters.restype = None
-            self.parameters.argtypes = [POINTER(c_char_p)]
+            self.parnames = self.dylib.parnames
+            self.parnames.restype = None
+            self.parnames.argtypes = [POINTER(c_char_p)]
             temp = (c_char_p * (self.nummet+self.numpar))(256)
-            ret = self.parameters(temp)
+            ret = self.parnames(temp)
             temp = numpy.array([str(elm,'utf-8') for elm in temp])
             self.metnames = numpy.copy(temp[:self.nummet])
             self.parnames = numpy.copy(temp[-self.numpar:])
@@ -50,40 +48,16 @@ class model:
         csim.argtypes = [array_1d_double,
                          array_1d_double,
                          array_1d_int,
+                         array_1d_int,
                          array_1d_double,
                          array_1d_int]
         #
-    def sim(self,envir,pr):
+    def sim(self,envir,pr,ftime,rep=1):
         pr = numpy.array(pr)
-        tf = temp.shape[0] + 1
-        ret = numpy.ndarray(tf*8,dtype=numpy.float64)
-        csim(tf,envirflat,pr,init,thr,ret)
-        ret = ret.reshape((tf,8))
-        return ret
-    #
-    def sim(self,clim,pr,cpr=[]):
-        """
-        Main simulation routine
-        """
-        fT = numpy.array(len(clim['dates']),dtype=numpy.int32,ndmin=1)
-        envar = numpy.array(clim['envar'],dtype=numpy.float64)
-        param = numpy.array(pr,dtype=numpy.float64)
-        param = numpy.hstack([param,cpr])
-        control = numpy.array(len(cpr)!=0,dtype=numpy.int32,ndmin=1)
-        result = numpy.ndarray((self.nummet+1)*fT[0],dtype=numpy.float64)
+        ret = numpy.ndarray(rep*ftime*self.nummet, dtype=numpy.float64)
         success = numpy.array(0,dtype=numpy.int32,ndmin=1)
-        ret = self.sim_model(envar,
-                             param,
-                             fT,
-                             control,
-                             result,
-                             success)
-        ret = {
-            'colT':result[0:fT[0]],
-            'success':success
-            }
-        for n in range(self.nummet):
-            ret[self.metnames[n]] = result[((n+1)*fT[0]):((n+2)*fT[0])]
+        self.csim(envir,pr,ftime,rep,ret,success)
+        ret = ret.reshape((rep,ftime,self.nummet))
         return ret
 
 """
