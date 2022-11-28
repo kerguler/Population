@@ -43,21 +43,29 @@ class model:
         for elm in self.parnames:
             self.parids[elm] = numpy.where(elm==self.parnames)[0][0]
         #
-        csim = model.sim
-        csim.restype = None
-        csim.argtypes = [array_1d_double,
-                         array_1d_double,
-                         array_1d_int,
-                         array_1d_int,
-                         array_1d_double,
-                         array_1d_int]
+        self.csim = self.dylib.sim
+        self.csim.restype = None
+        self.csim.argtypes = [array_1d_double,
+                              array_1d_double,
+                              array_1d_int,
+                              array_1d_int,
+                              array_1d_double,
+                              array_1d_int]
         #
     def sim(self,envir,pr,ftime,rep=1):
+        envir = numpy.array(envir)
         pr = numpy.array(pr)
+        ftime = numpy.array(ftime, dtype=numpy.int32, ndmin=1)
+        rep = numpy.array(rep, dtype=numpy.int32, ndmin=1)
         ret = numpy.ndarray(rep*ftime*self.nummet, dtype=numpy.float64)
-        success = numpy.array(0,dtype=numpy.int32,ndmin=1)
-        self.csim(envir,pr,ftime,rep,ret,success)
-        ret = ret.reshape((rep,ftime,self.nummet))
+        success = numpy.array(0, dtype=numpy.int32, ndmin=1)
+        self.csim(envir,
+                  pr,
+                  ftime,
+                  rep,
+                  ret,
+                  success)
+        ret = numpy.array(ret).reshape((rep[0],ftime[0],self.nummet))
         return ret
 
 """
