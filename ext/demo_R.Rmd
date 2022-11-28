@@ -1,0 +1,12 @@
+---
+title: "Population package wrapper for R"
+output: html_document
+date: '2022-11-28'
+---
+
+```{r, echo=TRUE, message=FALSE}
+source("population.R")
+knitr::opts_knit$set(root.dir = "./")
+knitr::opts_chunk$set(message = TRUE)
+```
+
