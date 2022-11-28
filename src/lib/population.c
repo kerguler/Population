@@ -475,6 +475,13 @@ char spop2_addpop(population popto, population popfrom) {
     return 0;
 }
 
+void spop2_foreach(population pop, transfer fun, void *opt) {
+    member elm, tmp;
+    HASH_ITER(hh, pop->members, elm, tmp) {
+        fun(elm->key, elm->num, opt);
+    }    
+}
+
 void spop2_step(population pop, double *par, number *survived, number *completed, population *popdone) {
     int i;
     //

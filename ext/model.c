@@ -35,6 +35,11 @@ void print_out(int rep, int tm, int ftime,
     result[1] = (double)egg;
 }
 
+void fun_transfer(number *key, number num, void *pop) {
+    number elmkey[2] = {key[0], numZERO};
+    spop2_add(*((population *)pop), elmkey, num);
+}
+
 void sim(double               *envar,
          double               *param,
          int                  *ftime,
@@ -72,11 +77,7 @@ void sim(double               *envar,
 
             eggs = gsl_ran_poisson(RANDOM, completed[1].i * fec);
 
-            member elm, tmp;
-            HASH_ITER(hh, poptable[1]->members, elm, tmp) {
-                number elmkey[2] = {elm->key[0], numZERO};
-                spop2_add(adult, elmkey, elm->num);
-            }    
+            spop2_foreach(poptable[1], fun_transfer, (void *)(&adult));
 
             print_out(rm, tm, *ftime, spop2_size(adult).i, eggs, result);
 
