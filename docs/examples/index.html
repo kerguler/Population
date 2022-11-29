@@ -1,0 +1,546 @@
+<!doctype html>
+<html >
+<head>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!--[if lt IE 9]>
+                <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+        <![endif]-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+
+    <!-- <link rel="stylesheet" type="text/css" href="template.css" /> -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/template.css" />
+
+    <link href="https://vjs.zencdn.net/5.4.4/video-js.css" rel="stylesheet" />
+
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+    <!-- <script type='text/javascript' src='menu/js/jquery.cookie.js'></script> -->
+    <!-- <script type='text/javascript' src='menu/js/jquery.hoverIntent.minified.js'></script> -->
+    <!-- <script type='text/javascript' src='menu/js/jquery.dcjqaccordion.2.7.min.js'></script> -->
+
+    <!-- <link href="menu/css/skins/blue.css" rel="stylesheet" type="text/css" /> -->
+    <!-- <link href="menu/css/skins/graphite.css" rel="stylesheet" type="text/css" /> -->
+    <!-- <link href="menu/css/skins/grey.css" rel="stylesheet" type="text/css" /> -->
+  
+    <!-- <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+        
+  
+    <!-- <script src="script.js"></script> -->
+  
+    <!-- <script src="jquery.sticky-kit.js "></script> -->
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.cookie.js'></script>
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.hoverIntent.minified.js'></script>
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.dcjqaccordion.2.7.min.js'></script>
+
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/blue.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/graphite.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/grey.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/ryangrose/easy-pandoc-templates@948e28e5/css/elegant_bootstrap.css" rel="stylesheet" type="text/css" />
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+    <script src="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/script.js"></script>
+  
+    <script src="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/jquery.sticky-kit.js"></script>
+    <meta name="generator" content="pandoc" />
+  <title>Population: new generation population dynamics model with a dynamic population structure</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+
+    
+    <div class="navbar navbar-static-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <span class="doc-title">Population: new generation population dynamics model with a dynamic population structure</span>
+        <ul class="nav pull-right doc-info">
+                            </ul>
+      </div>
+    </div>
+  </div>
+    <div class="container">
+    <div class="row">
+            <div id="TOC" class="span3">
+        <div class="well toc">
+
+        <ul>
+        <li><a href="#population">Population</a>
+        <ul>
+        <li><a href="#using-the-library">Using the library</a></li>
+        </ul></li>
+        <li><a href="#usage-examples">Usage examples</a>
+        <ul>
+        <li><a href="#a-deterministic-population-with-erlang-distributed-accumulative-development">A deterministic population with Erlang-distributed accumulative development</a></li>
+        <li><a href="#accounting-for-stochasticity">Accounting for stochasticity</a></li>
+        <li><a href="#distributions-and-assumptions">Distributions and assumptions</a></li>
+        <li><a href="#combining-multiple-processes">Combining multiple processes</a></li>
+        <li><a href="#gonotrophic-cycle-with-a-negative-impact-of-ovipositioning">Gonotrophic cycle with a negative impact of ovipositioning</a></li>
+        </ul></li>
+        <li><a href="#case-studies">Case studies</a>
+        <ul>
+        <li><a href="#nicholsons-blowflies">Nicholson’s blowflies</a></li>
+        </ul></li>
+        </ul>
+
+        </div>
+      </div>
+            <div class="span9">
+      <style>
+r { color: Red }
+o { color: Orange }
+g { color: Green }
+</style>
+<h1 id="population">Population</h1>
+<p><img src="figures/logo_sPop2.jpg" title="Climate impacts on vector-borne diseases" /></p>
+<p>Third-generation implementation of the dynamically-structured matrix population model, with multiple processes acting on member-classes, implementing both age-dependent and accumulative processes.</p>
+<h2 id="using-the-library">Using the library</h2>
+<p>The following creates a pseudo-structured population with 10 individuals and iterates it one step with 0 mortality and an Erlang-distributed development time of <span class="math inline">20 ± 5</span> steps.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> arbiters<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>ACC_ERLANG<span class="op">,</span> STOP<span class="op">};</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    population pop <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> STOCHASTIC<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    number key <span class="op">=</span> numZERO<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    number num <span class="op">=</span> <span class="op">{.</span>i <span class="op">=</span> <span class="dv">10</span><span class="op">};</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    spop2_add<span class="op">(</span>pop<span class="op">,</span> <span class="op">&amp;</span>key<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    number size<span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    number completed<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    population poptabledone <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> STOCHASTIC<span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> pr<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">20.0</span><span class="op">,</span> <span class="fl">5.0</span><span class="op">};</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    spop2_step<span class="op">(</span>pop<span class="op">,</span> pr<span class="op">,</span> <span class="op">&amp;</span>size<span class="op">,</span> <span class="op">&amp;</span>completed<span class="op">,</span> <span class="op">&amp;</span>poptabledone<span class="op">);</span></span></code></pre></div>
+<blockquote>
+<p><strong>Note:</strong> Make sure you call <code>spop2_random_init</code> before declaring a <code>STOCHASTIC</code> population (and then, call <code>spop2_random_destroy</code> at the end). This can be omitted for <code>DETERMINISTIC</code> models.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note:</strong> <code>number</code> is declared in <code>population.h</code> as a <code>union</code> of <code>unsigned int</code> and <code>double</code>.</p>
+</blockquote>
+<h1 id="usage-examples">Usage examples</h1>
+<h2 id="a-deterministic-population-with-erlang-distributed-accumulative-development">A deterministic population with Erlang-distributed accumulative development</h2>
+<p>Let’s begin with a simple case of insect development. For this, we need to know the average duration of the larva stage and its variation. Let’s assume that stage duration follows a <a href="https://en.wikipedia.org/wiki/Gamma_distribution">gamma</a> distribution (<a href="https://en.wikipedia.org/wiki/Erlang_distribution">Erlang</a> to be precise), which implies that all individuals race to develop out of the larva stage, while some are faster and even more of them are slower.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> arbiters<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>ACC_ERLANG<span class="op">,</span> STOP<span class="op">};</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    population pop <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> DETERMINISTIC<span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    number key<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>numZERO<span class="op">};</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    number num <span class="op">=</span> <span class="op">{.</span>d<span class="op">=</span><span class="fl">10.0</span><span class="op">};</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    spop2_add<span class="op">(</span>pop<span class="op">,</span> key<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;%d,%g,%g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span>spop2_size<span class="op">(</span>pop<span class="op">).</span>d<span class="op">,</span><span class="fl">0.0</span><span class="op">);</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> par<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">20.0</span><span class="op">,</span> <span class="fl">10.0</span><span class="op">};</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    number sz<span class="op">,</span> cm<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">1</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">50</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        spop2_step<span class="op">(</span>pop<span class="op">,</span> par<span class="op">,</span> <span class="op">&amp;</span>sz<span class="op">,</span> <span class="op">&amp;</span>cm<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;%d,%g,%g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span>i<span class="op">,</span>sz<span class="op">.</span>d<span class="op">,</span>cm<span class="op">.</span>d<span class="op">);</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<figure>
+<img src="figures/det_erlang.png" title="Deterministic - Erlang-distributed" alt="Erlang-distributed duration of larva development" /><figcaption aria-hidden="true">Erlang-distributed duration of larva development</figcaption>
+</figure>
+<h2 id="accounting-for-stochasticity">Accounting for stochasticity</h2>
+<p>With a simple modification, we can simulate how the dynamics vary when each individual is given a daily chance of completing its development based on the Erlang-distributed development time assumption.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> arbiters<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>ACC_ERLANG<span class="op">,</span> STOP<span class="op">};</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    population pop <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> STOCHASTIC<span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    number key<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>numZERO<span class="op">};</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    number num <span class="op">=</span> <span class="op">{.</span>i<span class="op">=</span><span class="dv">10</span><span class="op">};</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    spop2_add<span class="op">(</span>pop<span class="op">,</span> key<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;%d,%u,%u</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span>spop2_size<span class="op">(</span>pop<span class="op">).</span>i<span class="op">,</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> par<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">20.0</span><span class="op">,</span> <span class="fl">10.0</span><span class="op">};</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    number sz<span class="op">,</span> cm<span class="op">;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">1</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">50</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        spop2_step<span class="op">(</span>pop<span class="op">,</span> par<span class="op">,</span> <span class="op">&amp;</span>sz<span class="op">,</span> <span class="op">&amp;</span>cm<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;%d,%u,%u</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span>i<span class="op">,</span>sz<span class="op">.</span>i<span class="op">,</span>cm<span class="op">.</span>i<span class="op">);</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<figure>
+<img src="figures/sto_erlang.png" title="Stochastic - Erlang-distributed" alt="Erlang-distributed duration of larva development" /><figcaption aria-hidden="true">Erlang-distributed duration of larva development</figcaption>
+</figure>
+<h2 id="distributions-and-assumptions">Distributions and assumptions</h2>
+<p>The sPop2 framework allows for <a href="https://doi.org/10.12688/f1000research.15824.3">age-dependent</a> and <a href="https://doi.org/10.1038/s41598-022-15806-2">accumulative</a> development times.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 42%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Process</th>
+<th style="text-align: center;">Parameters</th>
+<th style="text-align: right;">Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ACC_ERLANG</td>
+<td style="text-align: center;">devmn, devsd</td>
+<td style="text-align: right;">Erlang-distributed accumulative process</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ACC_PASCAL</td>
+<td style="text-align: center;">devmn, devsd</td>
+<td style="text-align: right;">Pascal-distributed accumulative process</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ACC_FIXED</td>
+<td style="text-align: center;">devmn</td>
+<td style="text-align: right;">Fixed-duration accumulative process</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AGE_FIXED</td>
+<td style="text-align: center;">devmn</td>
+<td style="text-align: right;">Pascal-distributed age-dependent process</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NOAGE_CONST</td>
+<td style="text-align: center;">prob</td>
+<td style="text-align: right;">Constant-rate age-independent process</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AGE_CONST</td>
+<td style="text-align: center;">prob</td>
+<td style="text-align: right;">Constant-rate age-dependent process</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AGE_GAMMA</td>
+<td style="text-align: center;">devmn, devsd</td>
+<td style="text-align: right;">Gamma-distributed age-dependent process</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AGE_NBINOM</td>
+<td style="text-align: center;">devmn, devsd</td>
+<td style="text-align: right;">Negative binomial-distributed age-dependent process</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AGE_CUSTOM</td>
+<td style="text-align: center;">User-defined hazard function and stepper</td>
+<td style="text-align: right;">Age-dependent or accumulative stepping with a user-defined hazard function</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Age-dependent</th>
+<th style="text-align: right;">Accumulative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><img src="figures/distr_AGE_GAMMA.png" /></td>
+<td style="text-align: right;"><img src="figures/distr_ACC_ERLANG.png" /></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><img src="figures/distr_AGE_NBINOM.png" /></td>
+<td style="text-align: right;"><img src="figures/distr_ACC_PASCAL.png" /></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><img src="figures/distr_AGE_FIXED.png" /></td>
+<td style="text-align: right;"><img src="figures/distr_ACC_FIXED.png" /></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><img src="figures/distr_AGE_CONST.png" /></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="combining-multiple-processes">Combining multiple processes</h2>
+<p>Multiple processes can be added to an <code>sPop2</code> to represent more complex dynamics. For instance, we can represent survival with a daily constant rate and development with an Erlang-distributed accumulative process. The processes are executed in the order they are added to the <code>sPop2</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> arbiters<span class="op">[</span><span class="dv">3</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>AGE_CONST<span class="op">,</span> ACC_ERLANG<span class="op">,</span> STOP<span class="op">};</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    population pop <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> DETERMINISTIC<span class="op">);</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    number key<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>numZERO<span class="op">,</span>numZERO<span class="op">};</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    number num <span class="op">=</span> <span class="op">{.</span>d<span class="op">=</span><span class="fl">100.0</span><span class="op">};</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    spop2_add<span class="op">(</span>pop<span class="op">,</span> key<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;%d,%g,%g,%g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span>spop2_size<span class="op">(</span>pop<span class="op">).</span>d<span class="op">,</span><span class="fl">0.0</span><span class="op">,</span><span class="fl">0.0</span><span class="op">);</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    number size<span class="op">,</span> completed<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> par<span class="op">[</span><span class="dv">4</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">1.0</span><span class="op">/</span><span class="fl">60.0</span><span class="op">,</span> <span class="fl">30.0</span><span class="op">,</span> <span class="fl">5.0</span><span class="op">};</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">100</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        spop2_step<span class="op">(</span>pop<span class="op">,</span> par<span class="op">,</span> <span class="op">&amp;</span>size<span class="op">,</span> completed<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;%d,%g,%g,%g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span>i<span class="op">+</span><span class="dv">1</span><span class="op">,</span>size<span class="op">.</span>d<span class="op">,</span>completed<span class="op">[</span><span class="dv">0</span><span class="op">].</span>d<span class="op">,</span>completed<span class="op">[</span><span class="dv">1</span><span class="op">].</span>d<span class="op">);</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<p>The above instruction represent a life stage with <span class="math inline">0.017</span> daily mortality and <span class="math inline">30 ± 5</span> days of development time.</p>
+<figure>
+<img src="figures/multiple_mortality_development.png" alt="Mortality and development" /><figcaption aria-hidden="true">Mortality and development</figcaption>
+</figure>
+<h2 id="gonotrophic-cycle-with-a-negative-impact-of-ovipositioning">Gonotrophic cycle with a negative impact of ovipositioning</h2>
+<p>In this section, we will attempt to reproduce <a href="https://f1000research.com/articles/7-1220#f1">Figure 1</a> in the original age-dependent <a href="https://doi.org/10.12688/f1000research.15824.3">sPop</a> model. We will represent an adult female mosquito with a lifetime of <span class="math inline">20 ± 2</span> days. The female enters a cyclic process of obtaining bloodmeal and egg development, which takes about <span class="math inline">2</span> days. However, at the end of each ovipositioning, her expected lifetime decreases by <span class="math inline">2</span> days. I assure you that the actual physiology is far more complicated than this!</p>
+<p>In order to represent the lifetime of this female mosquito, we will employ <span class="math inline">3</span> processes:</p>
+<ul>
+<li>A custom age- and ovipositioning-dependent mortality process</li>
+<li>An age-dependent gamma-distributed egg development process</li>
+<li>A dummy process to count the number of ovipositioning events</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Declare an sPop2 population with deterministic dynamics,</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// and define three processes in this order: Mortality, Gonotropic cycle, Ovipositioning</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> arbiters<span class="op">[</span><span class="dv">4</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>AGE_CUSTOM<span class="op">,</span> AGE_GAMMA<span class="op">,</span> AGE_CUSTOM<span class="op">,</span> STOP<span class="op">};</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    population pop <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> DETERMINISTIC<span class="op">);</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    pop<span class="op">-&gt;</span>arbiters<span class="op">[</span><span class="dv">0</span><span class="op">]-&gt;</span>fun_calc <span class="op">=</span> custom<span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    pop<span class="op">-&gt;</span>arbiters<span class="op">[</span><span class="dv">2</span><span class="op">]-&gt;</span>fun_step <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span></code></pre></div>
+<p>The <span class="math inline">3<sup><em>r</em><em>d</em></sup></span> process is a dummy (<code>AGE_CUSTOM</code>), which does not affect the population or even does not posess a time counter (<code>fun_step = 0</code>). The <span class="math inline">2<sup><em>n</em><em>d</em></sup></span> process is the regular age-dependent gamma-distributed development process (<code>AGE_GAMMA</code>).</p>
+<p>The mortality process, on the other hand, is defined with a <code>custom</code> function and uses an age counter. We included this stepper in process declaration, because we require that the status indicator be an age counter, <em>i.e.</em> the number of steps the <code>sPop2</code> is iterated is kept in the status indicator (see <code>qkey</code> below). We declare the <code>custom</code> function as the following.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> custom<span class="op">(</span>hazard hfun<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">int</span> d<span class="op">,</span> number q<span class="op">,</span> number k<span class="op">,</span> <span class="dt">double</span> theta<span class="op">,</span> <span class="dt">const</span> number <span class="op">*</span>qkey<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> devmn <span class="op">=</span> <span class="fl">480.0</span> <span class="op">-</span> <span class="op">(</span>qkey<span class="op">[</span><span class="dv">2</span><span class="op">].</span>i <span class="op">&gt;</span> <span class="dv">4</span> <span class="op">?</span> <span class="fl">240.0</span> <span class="op">:</span> <span class="fl">48.0</span> <span class="op">*</span> qkey<span class="op">[</span><span class="dv">2</span><span class="op">].</span>i<span class="op">);</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> devsd <span class="op">=</span> <span class="fl">0.1</span> <span class="op">*</span> devmn<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        hazpar hz <span class="op">=</span> age_gamma_pars<span class="op">(</span>devmn<span class="op">,</span> devsd<span class="op">);</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> a <span class="op">=</span> age_hazard_calc<span class="op">(</span>age_gamma_haz<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> qkey<span class="op">[</span><span class="dv">0</span><span class="op">],</span> hz<span class="op">.</span>k<span class="op">,</span> hz<span class="op">.</span>theta<span class="op">,</span> qkey<span class="op">);</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> a<span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<p>With this function, we override an internal mechanism used by all other processes to calculate the probability of exit (need this be due to mortality, development, or something else) from the <code>sPop2</code> population. This generic functional form takes the following parameters.</p>
+<ul>
+<li><code>hfun</code> is a function to calculate the cumulative probability density of an exit event. It may use some of the other parameters to do so.</li>
+<li><code>d</code> refers to the number of days (more correctly time steps) elapsed in <code>sPop2</code>.</li>
+<li><code>q</code> refers to the fraction of development (used in accumulative processes).</li>
+<li><code>k</code> and <code>theta</code> are the parameters of the stage duration (development time) distribution.</li>
+<li><code>qkey</code> is an array of status indicators (age for age-dependent and development fraction for accumulative processes).</li>
+</ul>
+<p>Of all these, we use the status indicators to calculate the mean and standard deviation of mortality based on the third (<em>dummy</em>) process.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> devmn <span class="op">=</span> <span class="fl">480.0</span> <span class="op">-</span> <span class="op">(</span>qkey<span class="op">[</span><span class="dv">2</span><span class="op">].</span>i <span class="op">&gt;</span> <span class="dv">4</span> <span class="op">?</span> <span class="fl">240.0</span> <span class="op">:</span> <span class="fl">48.0</span> <span class="op">*</span> qkey<span class="op">[</span><span class="dv">2</span><span class="op">].</span>i<span class="op">);</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> devsd <span class="op">=</span> <span class="fl">0.1</span> <span class="op">*</span> devmn<span class="op">;</span></span></code></pre></div>
+<p>Then, we calculate the parameters of the corresponding gamma distribution using the internal function</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    hazpar hz <span class="op">=</span> age_gamma_pars<span class="op">(</span>devmn<span class="op">,</span> devsd<span class="op">);</span></span></code></pre></div>
+<p>and, with these, we calculate the cumulative probability of daily mortality</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> a <span class="op">=</span> age_hazard_calc<span class="op">(</span>age_gamma_haz<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> qkey<span class="op">[</span><span class="dv">0</span><span class="op">],</span> hz<span class="op">.</span>k<span class="op">,</span> hz<span class="op">.</span>theta<span class="op">,</span> qkey<span class="op">);</span> <span class="co">// qkey[0]: Mortality</span></span></code></pre></div>
+<p>Overall, the script to model the dynamics is given below.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> custom<span class="op">(</span>hazard hfun<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">int</span> d<span class="op">,</span> number q<span class="op">,</span> number k<span class="op">,</span> <span class="dt">double</span> theta<span class="op">,</span> <span class="dt">const</span> number <span class="op">*</span>qkey<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> devmn <span class="op">=</span> <span class="fl">480.0</span> <span class="op">-</span> <span class="op">(</span>qkey<span class="op">[</span><span class="dv">2</span><span class="op">].</span>i <span class="op">&gt;</span> <span class="dv">4</span> <span class="op">?</span> <span class="fl">240.0</span> <span class="op">:</span> <span class="fl">48.0</span> <span class="op">*</span> qkey<span class="op">[</span><span class="dv">2</span><span class="op">].</span>i<span class="op">);</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> devsd <span class="op">=</span> <span class="fl">0.1</span> <span class="op">*</span> devmn<span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        hazpar hz <span class="op">=</span> age_gamma_pars<span class="op">(</span>devmn<span class="op">,</span> devsd<span class="op">);</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> a <span class="op">=</span> age_hazard_calc<span class="op">(</span>age_gamma_haz<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> qkey<span class="op">[</span><span class="dv">0</span><span class="op">],</span> hz<span class="op">.</span>k<span class="op">,</span> hz<span class="op">.</span>theta<span class="op">,</span> qkey<span class="op">);</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> a<span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> fun_transfer<span class="op">(</span>number <span class="op">*</span>key<span class="op">,</span> number num<span class="op">,</span> <span class="dt">void</span> <span class="op">*</span>pop<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        number q<span class="op">[</span><span class="dv">3</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">{.</span>i<span class="op">=</span>key<span class="op">[</span><span class="dv">0</span><span class="op">].</span>i<span class="op">+</span><span class="dv">1</span><span class="op">},</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>            numZERO<span class="op">,</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">{.</span>i<span class="op">=</span>key<span class="op">[</span><span class="dv">2</span><span class="op">].</span>i<span class="op">+</span><span class="dv">1</span><span class="op">}</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        spop2_add<span class="op">(*(</span>population <span class="op">*)</span>pop<span class="op">,</span> q<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> sim<span class="op">(</span><span class="dt">char</span> stoch<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> i<span class="op">,</span> j<span class="op">;</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">char</span> arbiters<span class="op">[</span><span class="dv">4</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>AGE_CUSTOM<span class="op">,</span> AGE_GAMMA<span class="op">,</span> AGE_CUSTOM<span class="op">,</span> STOP<span class="op">};</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        population pop <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> stoch<span class="op">);</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        population popdone<span class="op">[</span><span class="dv">3</span><span class="op">];</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">3</span><span class="op">;</span> i<span class="op">++)</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>            popdone<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> stoch<span class="op">);</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        pop<span class="op">-&gt;</span>arbiters<span class="op">[</span><span class="dv">0</span><span class="op">]-&gt;</span>fun_calc <span class="op">=</span> custom<span class="op">;</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>        pop<span class="op">-&gt;</span>arbiters<span class="op">[</span><span class="dv">2</span><span class="op">]-&gt;</span>fun_step <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>        number key<span class="op">[</span><span class="dv">3</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>numZERO<span class="op">,</span>numZERO<span class="op">,</span>numZERO<span class="op">};</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>        number num<span class="op">;</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>stoch <span class="op">==</span> STOCHASTIC<span class="op">)</span> </span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>            num<span class="op">.</span>i <span class="op">=</span> <span class="dv">1000</span><span class="op">;</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>            num<span class="op">.</span>d <span class="op">=</span> <span class="fl">1000.0</span><span class="op">;</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>        spop2_add<span class="op">(</span>pop<span class="op">,</span> key<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>stoch <span class="op">==</span> STOCHASTIC<span class="op">)</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">&quot;%d,%d</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">&quot;%d,%g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="fl">0.0</span><span class="op">);</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>        number size<span class="op">,</span> completed<span class="op">[</span><span class="dv">3</span><span class="op">];</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> par<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">50.0</span><span class="op">,</span> <span class="fl">10.0</span><span class="op">};</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">480</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>            spop2_step<span class="op">(</span>pop<span class="op">,</span> par<span class="op">,</span> <span class="op">&amp;</span>size<span class="op">,</span> completed<span class="op">,</span> popdone<span class="op">);</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>stoch <span class="op">==</span> STOCHASTIC<span class="op">)</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">&quot;%d,%d</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span>i<span class="op">+</span><span class="dv">1</span><span class="op">,</span>completed<span class="op">[</span><span class="dv">1</span><span class="op">].</span>i<span class="op">);</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">&quot;%d,%g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span>i<span class="op">+</span><span class="dv">1</span><span class="op">,</span>completed<span class="op">[</span><span class="dv">1</span><span class="op">].</span>d<span class="op">);</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>            spop2_foreach<span class="op">(</span>popdone<span class="op">[</span><span class="dv">1</span><span class="op">],</span> fun_transfer<span class="op">,</span> <span class="op">(</span><span class="dt">void</span> <span class="op">*)(&amp;</span>pop<span class="op">));</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span>j<span class="op">=</span><span class="dv">0</span><span class="op">;</span> j<span class="op">&lt;</span><span class="dv">3</span><span class="op">;</span> j<span class="op">++)</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>                spop2_empty<span class="op">(&amp;</span>popdone<span class="op">[</span>j<span class="op">]);</span></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<p>At each step, <code>spop2_step</code> returns the following</p>
+<ul>
+<li>Current size of the population.</li>
+<li>Number of individuals completing each process in the given order.</li>
+<li>An array of <code>population</code>s with members completing each process.</li>
+</ul>
+<p>The script adds all individuals completing a gonotrophic cycle (<code>popdone[1]</code>) back to <code>pop</code> one by one. While doing so, their status indicators are updated manually.</p>
+<ul>
+<li><code>num</code> individuals are added</li>
+<li>Mortality indicator is iterated normally (<code>key[0] + 1</code>)</li>
+<li>Egg development indicator is reset (<code>numZERO</code> is the 0 value of <code>number</code>)</li>
+<li>Ovipositioning indicator is incremented (<code>key[2] + 1</code>)</li>
+</ul>
+<figure>
+<img src="figures/gonotrophic_cycle_w_mortality.png" alt="Mortality, development, and ovipositioning" /><figcaption aria-hidden="true">Mortality, development, and ovipositioning</figcaption>
+</figure>
+<h1 id="case-studies">Case studies</h1>
+<h2 id="nicholsons-blowflies">Nicholson’s blowflies</h2>
+<p><em>with special thanks to Sean L. Wu <a href="https://github.com/slwu89">@slwu89</a></em></p>
+<p>Nicholson’s blowflies are a classic example of a time-delayed stage-structured population model, and was presented as a case study in the <a href="https://f1000research.com/articles/7-1220">sPop paper</a>. We reproduce that example here using the <code>Population</code> library.</p>
+<p>The model comprises five distinct life-stages and exhibits stable quasi-cyclic oscillations. Although the model was originally constructed using delay differential equations, <code>Population</code> adheres well to the observed dynamics despite the discrete time step. We demonstrate both deterministic and stochastic versions of the basic dynamical model.</p>
+<p>First we define parameters of the model.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Define daily propensity of death</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> death<span class="op">[</span><span class="dv">5</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">0.07</span><span class="op">,</span> <span class="fl">0.004</span><span class="op">,</span> <span class="fl">0.003</span><span class="op">,</span> <span class="fl">0.0025</span><span class="op">,</span> <span class="fl">0.27</span><span class="op">};</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Define the expected duration of development (in days)</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> develop<span class="op">[</span><span class="dv">5</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">0.6</span><span class="op">,</span> <span class="fl">5.0</span><span class="op">,</span> <span class="fl">5.9</span><span class="op">,</span> <span class="fl">4.1</span><span class="op">,</span> <span class="fl">1e13</span><span class="op">};</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Define the rest of the parameters</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> A0 <span class="op">=</span> <span class="fl">600.0</span><span class="op">;</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> q <span class="op">=</span> <span class="fl">8.5</span><span class="op">;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> tau <span class="op">=</span> <span class="fl">24.0</span><span class="op">;</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// tau is a scaling factor to extend from daily to hourly iterations for more accurracy</span></span></code></pre></div>
+<p>Next we define a function to run the simulation for 300 days, in either stochastic or deterministic mode. The 5 life stages are stored in the vector <code>pop</code>. Each life stage has a <code>NOAGE_CONST</code> process for simulating mortality, which is independent of age in the blowflies model. It also has an <code>AGE_FIXED</code> process to simulate maturation, which has a deterministic (fixed) distribution in the blowflies model. Therefore variation in the stochastic version arises from the mortality process and egg laying, which is assumed to be drawn from a Poisson distribution centered on the deterministic mean.</p>
+<p>On each day we calculate the terms required for the mortality and development processes (<code>par[0]</code> and <code>par[1]</code>). Then, we use <code>spop2_step</code> to iterate the population for one day. Following a step, the function stores the total population size in <code>size[i]</code> and the number of individuals completing development in <code>completed[i]</code> for population <code>i</code>. Then, we pass individuals who have completed development to the next life stage. Finally, we compute the number of eggs produced by adults and add them to the egg stage.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">extern</span> gsl_rng <span class="op">*</span>RANDOM<span class="op">;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> sim<span class="op">(</span><span class="dt">char</span> stoch<span class="op">,</span> <span class="dt">char</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> i<span class="op">,</span> j<span class="op">,</span> k<span class="op">;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> death<span class="op">[</span><span class="dv">5</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">0.07</span><span class="op">,</span> <span class="fl">0.004</span><span class="op">,</span> <span class="fl">0.003</span><span class="op">,</span> <span class="fl">0.0025</span><span class="op">,</span> <span class="fl">0.27</span><span class="op">};</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> develop<span class="op">[</span><span class="dv">5</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="fl">0.6</span><span class="op">,</span> <span class="fl">5.0</span><span class="op">,</span> <span class="fl">5.9</span><span class="op">,</span> <span class="fl">4.1</span><span class="op">,</span> <span class="fl">1e13</span><span class="op">};</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> A0 <span class="op">=</span> <span class="fl">600.0</span><span class="op">;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> q <span class="op">=</span> <span class="fl">8.5</span><span class="op">;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> tau <span class="op">=</span> <span class="fl">24.0</span><span class="op">;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">char</span> arbiters<span class="op">[</span><span class="dv">3</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>NOAGE_CONST<span class="op">,</span> AGE_FIXED<span class="op">,</span> STOP<span class="op">};</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        population pop<span class="op">[</span><span class="dv">5</span><span class="op">];</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>            pop<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> stoch<span class="op">);</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        number key<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>numZERO<span class="op">,</span>numZERO<span class="op">};</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        number num<span class="op">;</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>stoch <span class="op">==</span> STOCHASTIC<span class="op">)</span> </span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>            num<span class="op">.</span>i <span class="op">=</span> <span class="dv">500</span><span class="op">;</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>            num<span class="op">.</span>d <span class="op">=</span> <span class="fl">500.0</span><span class="op">;</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        spop2_add<span class="op">(</span>pop<span class="op">[</span><span class="dv">0</span><span class="op">],</span> key<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>stoch <span class="op">==</span> STOCHASTIC<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">&quot;%d,%d&quot;</span><span class="op">,</span>id<span class="op">,</span><span class="dv">0</span><span class="op">);</span> <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> printf<span class="op">(</span><span class="st">&quot;,%d&quot;</span><span class="op">,</span>spop2_size<span class="op">(</span>pop<span class="op">[</span>i<span class="op">]).</span>i<span class="op">);</span> printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">&quot;%d,%d&quot;</span><span class="op">,</span>id<span class="op">,</span><span class="dv">0</span><span class="op">);</span> <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> printf<span class="op">(</span><span class="st">&quot;,%g&quot;</span><span class="op">,</span>spop2_size<span class="op">(</span>pop<span class="op">[</span>i<span class="op">]).</span>d<span class="op">);</span> printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>        number size<span class="op">[</span><span class="dv">5</span><span class="op">],</span> completed<span class="op">[</span><span class="dv">5</span><span class="op">][</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> par<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>        number eggs<span class="op">;</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span>j<span class="op">=</span><span class="dv">0</span><span class="op">;</span> j<span class="op">&lt;</span><span class="dv">300</span><span class="op">*</span>tau<span class="op">;</span> j<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;</span><span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>                par<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> death<span class="op">[</span>i<span class="op">]</span> <span class="op">/</span> tau<span class="op">;</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>                par<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> develop<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> tau<span class="op">;</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>                spop2_step<span class="op">(</span>pop<span class="op">[</span>i<span class="op">],</span> par<span class="op">,</span> <span class="op">&amp;</span>size<span class="op">[</span>i<span class="op">],</span> completed<span class="op">[</span>i<span class="op">],</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>                    spop2_add<span class="op">(</span>pop<span class="op">[</span>i<span class="op">],</span> key<span class="op">,</span> completed<span class="op">[</span>i<span class="op">-</span><span class="dv">1</span><span class="op">][</span><span class="dv">1</span><span class="op">]);</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>stoch <span class="op">==</span> STOCHASTIC<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>                <span class="dt">double</span> tmp <span class="op">=</span> q <span class="op">*</span> <span class="op">(</span><span class="dt">double</span><span class="op">)</span>size<span class="op">[</span><span class="dv">4</span><span class="op">].</span>i <span class="op">*</span> exp<span class="op">(-(</span><span class="dt">double</span><span class="op">)</span>size<span class="op">[</span><span class="dv">4</span><span class="op">].</span>i <span class="op">/</span> A0<span class="op">)</span> <span class="op">/</span> tau<span class="op">;</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>                eggs<span class="op">.</span>i <span class="op">=</span> <span class="op">(</span><span class="dt">unsigned</span> <span class="dt">int</span><span class="op">)</span>gsl_ran_poisson<span class="op">(</span>RANDOM<span class="op">,</span> tmp<span class="op">);</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>                eggs<span class="op">.</span>d <span class="op">=</span> q <span class="op">*</span> size<span class="op">[</span><span class="dv">4</span><span class="op">].</span>d <span class="op">*</span> exp<span class="op">(-</span>size<span class="op">[</span><span class="dv">4</span><span class="op">].</span>d <span class="op">/</span> A0<span class="op">)</span> <span class="op">/</span> tau<span class="op">;</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>            spop2_add<span class="op">(</span>pop<span class="op">[</span><span class="dv">0</span><span class="op">],</span> key<span class="op">,</span> eggs<span class="op">);</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>stoch <span class="op">==</span> STOCHASTIC<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">&quot;%d,%d&quot;</span><span class="op">,</span>id<span class="op">,</span>j<span class="op">);</span> <span class="cf">for</span> <span class="op">(</span>k<span class="op">=</span><span class="dv">0</span><span class="op">;</span> k<span class="op">&lt;</span><span class="dv">5</span><span class="op">;</span> k<span class="op">++)</span> printf<span class="op">(</span><span class="st">&quot;,%d&quot;</span><span class="op">,</span>spop2_size<span class="op">(</span>pop<span class="op">[</span>k<span class="op">]).</span>i<span class="op">);</span> printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">&quot;%d,%d&quot;</span><span class="op">,</span>id<span class="op">,</span>j<span class="op">);</span> <span class="cf">for</span> <span class="op">(</span>k<span class="op">=</span><span class="dv">0</span><span class="op">;</span> k<span class="op">&lt;</span><span class="dv">5</span><span class="op">;</span> k<span class="op">++)</span> printf<span class="op">(</span><span class="st">&quot;,%g&quot;</span><span class="op">,</span>spop2_size<span class="op">(</span>pop<span class="op">[</span>k<span class="op">]).</span>d<span class="op">);</span> printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<p>We run the deterministic model, and sample 100 trajectories from the stochastic model. We plot results from the last 200 days of simulation.</p>
+<figure>
+<img src="figures/blowfly_figure.png" alt="Deterministic and stochastic dynamics" /><figcaption aria-hidden="true">Deterministic and stochastic dynamics</figcaption>
+</figure>
+            </div>
+    </div>
+  </div>
+  <script src="https://vjs.zencdn.net/5.4.4/video.js"></script>
+
+</body>
+</html>

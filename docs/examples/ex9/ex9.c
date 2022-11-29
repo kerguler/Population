@@ -45,7 +45,7 @@ void sim(char stoch, char id) {
             spop2_step(pop[i], par, &size[i], completed[i], 0);
 
             if (i) {
-                spop2_add(pop[i], key,completed[i-1][1]);
+                spop2_add(pop[i], key, completed[i-1][1]);
             }
         }
 

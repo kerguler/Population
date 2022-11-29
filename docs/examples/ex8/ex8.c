@@ -11,6 +11,15 @@ double custom(hazard hfun, unsigned int d, number q, number k, double theta, con
     return a;
 }
 
+void fun_transfer(number *key, number num, void *pop) {
+    number q[3] = {
+        {.i=key[0].i+1},
+        numZERO,
+        {.i=key[2].i+1}
+    };
+    spop2_add(*(population *)pop, q, num);
+}
+
 void sim(char stoch) {
     int i, j;
 
@@ -40,32 +49,24 @@ void sim(char stoch) {
     number size, completed[3];
     double par[2] = {50.0, 10.0};
 
-    member elm, tmp;
-
-    number q[3] = {numZERO,numZERO,numZERO};
-
     for (i=0; i<480; i++) {
         spop2_step(pop, par, &size, completed, popdone);
         if (stoch == STOCHASTIC)
             printf("%d,%d\n",i+1,completed[1].i);
         else
             printf("%d,%g\n",i+1,completed[1].d);
-        //
-        HASH_ITER(hh, popdone[1]->members, elm, tmp) {
-            q[0].i = elm->key[0].i+1;
-            q[1] = numZERO;
-            q[2].i = elm->key[2].i+1;
-            spop2_add(pop, q, elm->num);
-            for (j=0; j<3; j++)
-                spop2_empty(&popdone[j]);
-        }
+
+        spop2_foreach(popdone[1], fun_transfer, (void *)(&pop));
+
+        for (j=0; j<3; j++)
+            spop2_empty(&popdone[j]);
     }
 }
 
 int main(int attr, char *avec[]) {
     spop2_random_init();
 
-    if (FALSE)
+    if (TRUE)
         sim(DETERMINISTIC);
     else {
         int i;
