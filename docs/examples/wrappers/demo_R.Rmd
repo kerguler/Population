@@ -1,0 +1,46 @@
+---
+title: "Population package wrapper for R"
+author: "Kamil Erguler"
+output: html_document
+date: '2022-11-29'
+---
+
+```{r, echo=TRUE, message=FALSE}
+source("population.R")
+knitr::opts_knit$set(root.dir = "./")
+knitr::opts_chunk$set(message = TRUE)
+
+cola <- function(col,alpha=1.0) {
+    a <- data.frame(t(col2rgb(col))) / 255.0
+    return(rgb(a$red,a$green,a$blue,alpha=alpha))
+}
+
+fill_between <- function(x, yl, yh, ...) {
+    polygon(c(x, rev(x)), c(yh,rev(yl)), ...)
+}
+```
+
+```{r, echo=TRUE, message=FALSE}
+vec <- model("./model.dylib")
+
+envir <- c()
+pr <- c(100.0, 0.0, 20.0, 5.0, 5.0, 1.0, 10.0)
+ftime <- 40
+rept <- 10
+
+res <- vec$sim(envir, pr, ftime, rept)
+
+xr <- 1:dim(res)[2] - 1
+adult <- apply(res[1,,],1,stats::quantile,probs=c(0.05,0.5,0.95),na.rm=TRUE)
+egg <- apply(res[2,,],1,stats::quantile,probs=c(0.05,0.5,0.95),na.rm=TRUE)
+```
+
+```{r, echo=TRUE, message=FALSE}
+plot(xr, adult[2,], t="l", col="blue")
+fill_between(xr, adult[1,], adult[3,], col=cola("blue",0.5), border=FALSE)
+```
+
+```{r, echo=TRUE, message=FALSE}
+plot(xr, egg[2,], t="l", col="blue")
+fill_between(xr, egg[1,], egg[3,], col=cola("blue",0.5), border=FALSE)
+```
