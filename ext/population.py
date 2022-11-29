@@ -53,6 +53,9 @@ class model:
                               array_1d_int]
         #
     def sim(self,envir,pr,ftime,rep=1):
+        """
+            Note: Final time point is ftime - 1
+        """
         envir = numpy.array(envir)
         pr = numpy.array(pr)
         ftime = numpy.array(ftime, dtype=numpy.int32, ndmin=1)
