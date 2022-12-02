@@ -1,10 +1,10 @@
 #include "population.h"
 
+extern gsl_rng *RANDOM;
+
 #define NumPar 7
 #define NumMet 2
 #define NumEnv 1
-
-extern gsl_rng *RANDOM;
 
 void init(int *np, int *nm) {
   spop2_random_init();
