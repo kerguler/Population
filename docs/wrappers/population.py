@@ -70,32 +70,6 @@ class model:
                   success)
         ret = numpy.array(ret).reshape((rep[0],ftime[0],self.nummet))
         return ret
-
-class parser:
-    def __init__(self, json) -> None:
-        self.json = json
-        #
-    def write_header(self):
-        print("#include \"population.h\"")
-        print()
-        print("extern gsl_rng *RANDOM;")
-        print()
-        #
-    def write_init(self):
-        print("void init(int *np, int *nm) {")
-        print("    spop2_random_init();")
-        print()
-        print("    *np = NumPar;")
-        print("    *nm = NumMet;")
-        print("}")
-        print()
-        #
-    def write_destroy(self):
-        print("void destroy(void) {")
-        print("    spop2_random_destroy();")
-        print("}")
-        print()
-        #
         
 """
 TEST
