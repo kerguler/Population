@@ -26,6 +26,8 @@
 #include <gsl/gsl_randist.h>
 #include "population.h"
 
+number numACCTHR = {.d=1.0};
+
 /* ----------------------------------------------------------- *\
  * RANDOM
 \* ----------------------------------------------------------- */
@@ -529,7 +531,7 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             for (dev=0; memcmp(&(elm->num),&numZERO,sizeof(number)); ) {
                 memcpy(q2, elm->key, sz);
                 if (pop->arbiters[i]->fun_step)
-                    q2[i] = pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
+                    q2[i] = (pop->types[i] == ACC_ARBITER) && (hp.k.i < 1) ? numACCTHR : pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
                 //
                 if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) {
                     if (popdone) {
