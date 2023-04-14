@@ -26,6 +26,12 @@
 #include <gsl/gsl_randist.h>
 #include "population.h"
 
+/*
+    #define malloc(X) malloc(X); printf("malloc %s, %i, %s, %li\n",__FILE__, __LINE__, __FUNCTION__,(X));
+    #define calloc(X,Y) calloc((X),(Y)); printf("calloc %s, %i, %s, %lu, %lu\n",__FILE__, __LINE__, __FUNCTION__,(X),(Y));
+    #define free(X) free(X); printf("free %s, %i, %s\n",__FILE__, __LINE__, __FUNCTION__);
+*/
+
 number numACCTHR = {.d=1.0};
 
 /* ----------------------------------------------------------- *\
@@ -239,7 +245,7 @@ double age_custom_haz(unsigned int i, number k, double theta) {
 
 number *key_init(number *key_raw, unsigned int nkey, char *types) {
     number *key = (number *)calloc(nkey, sizeof(number));
-    int i = 0;
+    unsigned int i = 0;
     for (; i < nkey; i++) {
         key[i] = key_raw[i];
         if (types[i] == ACC_ARBITER)
@@ -296,7 +302,7 @@ void spop2_print(population pop) {
     member elm, tmp;
     HASH_ITER(hh, pop->members, elm, tmp) {
         printf("Member{ (");
-        int i;
+        unsigned int i;
         for (i = 0; i < pop->nkey; i++)
             if (pop->types[i] == ACC_ARBITER)
                 printf("%s%g", i ? "," : "", elm->key[i].d);
@@ -314,7 +320,7 @@ void spop2_printable(population pop, int tm) {
     member elm, tmp;
     HASH_ITER(hh, pop->members, elm, tmp) {
         printf("%d,", tm);
-        int i;
+        unsigned int i;
         for (i = 0; i < pop->nkey; i++)
             if (pop->types[i] == ACC_ARBITER)
                 printf("%s%g", i ? "," : "", elm->key[i].d);
@@ -328,7 +334,7 @@ void spop2_printable(population pop, int tm) {
 }
 
 population spop2_init(char *arbiters, char stoch) {
-    int i;
+    unsigned int i;
     //
     population pop = (population)malloc(sizeof(struct population_st));
     //
@@ -401,7 +407,7 @@ population spop2_init(char *arbiters, char stoch) {
 }
 
 void spop2_free(population *pop) {
-    int i;
+    unsigned int i;
     for (i=0; i < (*pop)->nkey; i++)
         arbiter_free(&((*pop)->arbiters[i]));
     free((*pop)->arbiters);
@@ -465,6 +471,8 @@ char spop2_add(population pop, number *key_raw, number num) {
     number *key = key_init(key_raw, pop->nkey, pop->types);
     key_add(&(pop->members), key, num, pop->nkey, pop->stoch);
     //
+    free(key);
+    //
     return 0;
 }
 
@@ -485,7 +493,7 @@ void spop2_foreach(population pop, transfer fun, void *opt) {
 }
 
 void spop2_step(population pop, double *par, number *survived, number *completed, population *popdone) {
-    int i;
+    unsigned int i;
     //
     size_t sz = pop->nkey * sizeof(number);
     hazpar hp;
