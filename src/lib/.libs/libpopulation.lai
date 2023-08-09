@@ -17,7 +17,7 @@ old_library='libpopulation.a'
 inherited_linker_flags=' '
 
 # Libraries that this one depends upon.
-dependency_libs=' -L/Users/kamil/anaconda3/lib'
+dependency_libs=' -L/Users/kamil/anaconda3/lib -L/opt/local/lib -lglib-2.0 -lintl'
 
 # Names of additional weak libraries provided by this library
 weak_library_names=''

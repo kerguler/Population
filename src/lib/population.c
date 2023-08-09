@@ -227,8 +227,7 @@ double age_const_haz(unsigned int i, number k, double theta) {
 }
 
 double age_gamma_haz(unsigned int i, number k, double theta) {
-    // TO DO: The problem of overflow should be solved!
-    return gsl_cdf_gamma_P((double)i, k.d, theta);
+    return k.d > 0 ? gsl_cdf_gamma_P((double)i, k.d, theta) : 0.0;  
 }
 
 double age_nbinom_haz(unsigned int i, number k, double theta) {
