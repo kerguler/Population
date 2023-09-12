@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([Population], [0.0.7], [kerguler@gmail.com])
+AC_INIT([Population], [0.0.8], [kerguler@gmail.com])
 AC_CONFIG_SRCDIR([src/lib/population.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([1.9 foreign])
@@ -28,6 +28,9 @@ AC_LANG([C])
 
 # Checks for libraries.
 AC_CONFIG_MACRO_DIRS([m4])
+AC_CHECK_LIB([m],[cos])
+AC_CHECK_LIB([gslcblas],[cblas_dgemm])
+AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
 PKG_CHECK_MODULES([GLIB], [glib-2.0], [have_libglib=yes], [have_libglib=no])
 AM_CONDITIONAL([GLIB],  [test "$have_libglib" = "yes"])
 
