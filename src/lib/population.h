@@ -197,6 +197,7 @@ struct population_st {
     size_t nkey;
     char stoch;
     char *types;
+    char *arbicodes;
     unsigned int *numpars;
     update fun_update;
     arbiter *arbiters;
@@ -218,6 +219,8 @@ void spop2_foreach(population, transfer, void *);
 void spop2_step(population, double *, number *, number *, population *);
 void spop2_print(population);
 void spop2_printable(population, int);
+number *spop2_savestate(population);
+population spop2_loadstate(number *);
 
 /* ----------------------------------------------------------- *\
  * 

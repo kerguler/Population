@@ -299,10 +299,10 @@ void spop2_print(population pop) {
         printf("Empty population\n");
         return;
     }
+    unsigned int i;
     member elm, tmp;
     HASH_ITER(hh, pop->members, elm, tmp) {
         printf("Member{ (");
-        unsigned int i;
         for (i = 0; i < pop->nkey; i++)
             if (pop->types[i] == ACC_ARBITER)
                 printf("%s%g", i ? "," : "", elm->key[i].d);
@@ -317,10 +317,10 @@ void spop2_print(population pop) {
 
 
 void spop2_printable(population pop, int tm) {
+    unsigned int i;
     member elm, tmp;
     HASH_ITER(hh, pop->members, elm, tmp) {
         printf("%d,", tm);
-        unsigned int i;
         for (i = 0; i < pop->nkey; i++)
             if (pop->types[i] == ACC_ARBITER)
                 printf("%s%g", i ? "," : "", elm->key[i].d);
@@ -331,6 +331,62 @@ void spop2_printable(population pop, int tm) {
         else
             printf(",%g\n",elm->num.d);
     }
+}
+
+number *spop2_savestate(population pop) {
+    unsigned int num_class = HASH_COUNT(pop->members);
+    unsigned int i;
+    //
+    number *ret = (number *)malloc((4 + pop->nkey + num_class * (pop->nkey + 1)) * (sizeof(number)));
+    //
+    number *vec = ret;
+    vec[0].i = num_class;
+    vec++;
+    vec[0].i = pop->nkey;
+    vec++;
+    vec[0].i = pop->stoch;
+    vec++;
+    for (i=0; i<pop->nkey; i++, vec++)
+        vec[0].i = pop->arbicodes[i];
+    vec[0].i = STOP;
+    vec++;
+    //
+    member elm, tmp;
+    HASH_ITER(hh, pop->members, elm, tmp) {
+        for (i = 0; i < pop->nkey; i++, vec++)
+            vec[0] = elm->key[i];
+        vec[0] = elm->num;
+        vec++;
+    }
+    //
+    return ret;
+}
+
+population spop2_loadstate(number *state) {
+    if (!state) return 0;
+    unsigned int i;
+    //
+    unsigned int num_class = state[0].i;
+    printf("num_class: %u\n",num_class);
+    unsigned int nkey = state[1].i;
+    printf("nkey: %u\n",nkey);
+    char stoch = (char)(state[2].i);
+    printf("stoch: %d\n",stoch);
+    char *arbiters = (char *)malloc((nkey+1)*sizeof(char));
+    for (i=0; i<nkey+1; i++) {
+        arbiters[i] = (char)(state[3+i].i);
+        printf("arbiters: %d\n",arbiters[i]);
+    }
+    number *vec = state + 4 + nkey;
+    //
+    population pop = spop2_init(arbiters, stoch);
+    for (i=0; i < num_class; i++, vec+=(pop->nkey + 1)) {
+        spop2_add(pop, vec, *(vec + pop->nkey));
+    }
+    //
+    free(arbiters);
+    //
+    return pop;
 }
 
 population spop2_init(char *arbiters, char stoch) {
@@ -346,10 +402,13 @@ population spop2_init(char *arbiters, char stoch) {
     pop->types = (char *)calloc(pop->nkey, sizeof(char));
     pop->numpars = (unsigned int *)calloc(pop->nkey, sizeof(unsigned int));
     //
+    pop->arbicodes = (char *)malloc(pop->nkey * sizeof(char));
+    memcpy(pop->arbicodes, arbiters, pop->nkey);
+    //
     pop->arbiters = (arbiter *)malloc(pop->nkey * sizeof(struct arbiter_st));
     for (i=0; i < pop->nkey; i++) {
-        pop->types[i] = arbiters[i];
-        switch (arbiters[i]) {
+        pop->types[i] = pop->arbicodes[i];
+        switch (pop->arbicodes[i]) {
             case ACC_FIXED:
                 pop->arbiters[i] = arbiter_init(acc_fixed_pars, acc_fixed_haz, acc_hazard_calc, acc_stepper);
                 pop->types[i] = ACC_ARBITER;
@@ -412,6 +471,7 @@ void spop2_free(population *pop) {
         arbiter_free(&((*pop)->arbiters[i]));
     free((*pop)->arbiters);
     free((*pop)->types);
+    free((*pop)->arbicodes);
     free((*pop)->numpars);
     spop2_empty(pop);
     free(*pop);
