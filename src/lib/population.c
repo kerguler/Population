@@ -367,25 +367,35 @@ number *spop2_savestate(population pop) {
     return ret;
 }
 
+population spop2_loadstate_empty(number *state) {
+    if (!state) return 0;
+    unsigned int i;
+    //
+    // WARNING: Header structure is hard-coded here
+    unsigned int nkey = state[1].i;
+    char stoch = (char)(state[2].i);
+    char *arbiters = (char *)malloc((nkey+1)*sizeof(char));
+    for (i=0; i<nkey+1; i++)
+        arbiters[i] = (char)(state[3+i].i);
+    population pop = spop2_init(arbiters, stoch);
+    //
+    free(arbiters);
+    //
+    return pop;
+}
+
 population spop2_loadstate(number *state) {
     if (!state) return 0;
     unsigned int i;
     //
     // WARNING: Header structure is hard-coded here
     unsigned int num_class = state[0].i;
-    unsigned int nkey = state[1].i;
-    char stoch = (char)(state[2].i);
-    char *arbiters = (char *)malloc((nkey+1)*sizeof(char));
-    for (i=0; i<nkey+1; i++)
-        arbiters[i] = (char)(state[3+i].i);
-    number *vec = state + 4 + nkey;
     //
-    population pop = spop2_init(arbiters, stoch);
+    population pop = spop2_loadstate_empty(state);
+    number *vec = state + 4 + pop->nkey;
     for (i=0; i < num_class; i++, vec+=(pop->nkey + 1)) {
         spop2_add(pop, vec, *(vec + pop->nkey));
     }
-    //
-    free(arbiters);
     //
     return pop;
 }
