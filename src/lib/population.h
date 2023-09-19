@@ -219,6 +219,7 @@ void spop2_foreach(population, transfer, void *);
 void spop2_step(population, double *, number *, number *, population *);
 void spop2_print(population);
 void spop2_printable(population, int);
+unsigned int spop2_buffsize(population);
 number *spop2_savestate(population);
 population spop2_loadstate(number *);
 

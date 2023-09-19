@@ -45,6 +45,7 @@ void run_save() {
     spop2_printable(pop,0);
 
     number *state = spop2_savestate(pop);
+    printf("\nBuffer size: %u bytes\n", spop2_buffsize(pop));
 
     population pop2 = spop2_loadstate(state);
 

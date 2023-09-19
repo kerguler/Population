@@ -333,15 +333,19 @@ void spop2_printable(population pop, int tm) {
     }
 }
 
+unsigned int spop2_buffsize(population pop) {
+    // WARNING: Header structure is hard-coded here
+    return (4 + pop->nkey + (HASH_COUNT(pop->members)) * (pop->nkey + 1)) * (sizeof(number));
+}
+
 number *spop2_savestate(population pop) {
-    unsigned int num_class = HASH_COUNT(pop->members);
     unsigned int i;
     //
     // WARNING: Header structure is hard-coded here
-    number *ret = (number *)malloc((4 + pop->nkey + num_class * (pop->nkey + 1)) * (sizeof(number)));
+    number *ret = (number *)malloc( spop2_buffsize(pop) );
     //
     number *vec = ret;
-    vec[0].i = num_class;
+    vec[0].i = HASH_COUNT(pop->members);
     vec++;
     vec[0].i = pop->nkey;
     vec++;
