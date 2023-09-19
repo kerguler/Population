@@ -337,6 +337,7 @@ number *spop2_savestate(population pop) {
     unsigned int num_class = HASH_COUNT(pop->members);
     unsigned int i;
     //
+    // WARNING: Header structure is hard-coded here
     number *ret = (number *)malloc((4 + pop->nkey + num_class * (pop->nkey + 1)) * (sizeof(number)));
     //
     number *vec = ret;
@@ -366,17 +367,13 @@ population spop2_loadstate(number *state) {
     if (!state) return 0;
     unsigned int i;
     //
+    // WARNING: Header structure is hard-coded here
     unsigned int num_class = state[0].i;
-    printf("num_class: %u\n",num_class);
     unsigned int nkey = state[1].i;
-    printf("nkey: %u\n",nkey);
     char stoch = (char)(state[2].i);
-    printf("stoch: %d\n",stoch);
     char *arbiters = (char *)malloc((nkey+1)*sizeof(char));
-    for (i=0; i<nkey+1; i++) {
+    for (i=0; i<nkey+1; i++)
         arbiters[i] = (char)(state[3+i].i);
-        printf("arbiters: %d\n",arbiters[i]);
-    }
     number *vec = state + 4 + nkey;
     //
     population pop = spop2_init(arbiters, stoch);
