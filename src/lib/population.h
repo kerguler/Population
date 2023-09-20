@@ -206,6 +206,8 @@ struct population_st {
 
 void spop2_set_eps(double);
 
+void spop2_set_purge(unsigned, double);
+
 typedef void (*transfer)(number *, number, void *);
 
 population spop2_init(char *, char);

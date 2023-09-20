@@ -63,6 +63,36 @@ double popsize_round(double val) {
 }
 
 /* ----------------------------------------------------------- *\
+ * PURGE
+\* ----------------------------------------------------------- */
+
+unsigned int POPCLASS_MAX = 0;
+double POPCLASS_EPS = 1e-13;
+void spop2_set_purge(unsigned int maxclass, double eps) {
+    POPCLASS_MAX = maxclass;
+    POPCLASS_EPS = eps;
+}
+
+void spop2_purge_members(population *pop) {
+    member elm, tmp;
+    if ((*pop)->stoch) {
+        HASH_ITER(hh, (*pop)->members, elm, tmp) {
+            if ((double)(elm->num.i) < POPCLASS_EPS) {
+                HASH_DEL((*pop)->members, elm);
+                member_free(elm);
+            }
+        }
+    } else {
+        HASH_ITER(hh, (*pop)->members, elm, tmp) {
+            if (elm->num.d < POPCLASS_EPS) {
+                HASH_DEL((*pop)->members, elm);
+                member_free(elm);
+            }
+        }
+    }
+}
+
+/* ----------------------------------------------------------- *\
 \* ----------------------------------------------------------- */
 
 arbiter arbiter_init(parameters fun_pars, hazard fun_haz, calculator fun_calc, stepper fun_step) {
@@ -658,6 +688,9 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             pop->members = poptablenext;
         }
     }
+    //
+    if (POPCLASS_MAX > 0 && HASH_COUNT(pop->members) > POPCLASS_MAX)
+        spop2_purge_members(&pop);
     //
     free(q2);
 }
