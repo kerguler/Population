@@ -134,6 +134,10 @@ double acc_hazard_calc(hazard heval, unsigned int d, number q, number k, double 
     return h0 == 1.0 ? 1.0 : 1.0 - (1.0 - h1)/(1.0 - h0); // mortality
 }
 
+double acc_custom_calc(hazard heval, unsigned int d, number q, number k, double theta, const number *qkey) {
+    return 0.0; // mortality
+}
+
 double age_const_calc(hazard heval, unsigned int d, number q, number k, double theta, const number *qkey) {
     return theta; // mortality
 }
@@ -192,6 +196,14 @@ hazpar acc_pascal_pars(double devmn, double devsd) {
     return hz;
 }
 
+hazpar acc_custom_pars(double devmn, double devsd) {
+    hazpar hz;
+    hz.k.i = 1;
+    hz.theta = 1.0;
+    hz.stay = TRUE;
+    return hz;
+}
+
 hazpar age_fixed_pars(double devmn, double devsd) {
     hazpar hz;
     hz.k.d = round(devmn);
@@ -246,6 +258,10 @@ double acc_erlang_haz(unsigned int i, number k, double theta) {
 
 double acc_pascal_haz(unsigned int i, number k, double theta) {
     return 1.0 - pow(theta, i + 1);
+}
+
+double acc_custom_haz(unsigned int i, number k, double theta) {
+    return 0.0;
 }
 
 double age_fixed_haz(unsigned int i, number k, double theta) {
@@ -488,6 +504,11 @@ population spop2_init(char *arbiters, char stoch) {
             case AGE_CUSTOM:
                 pop->arbiters[i] = arbiter_init(age_custom_pars, age_custom_haz, age_custom_calc, age_stepper);
                 pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 0;
+                break;
+            case ACC_CUSTOM:
+                pop->arbiters[i] = arbiter_init(acc_custom_pars, acc_custom_haz, acc_custom_calc, acc_stepper);
+                pop->types[i] = ACC_ARBITER;
                 pop->numpars[i] = 0;
                 break;
             case NOAGE_CONST:
