@@ -21,6 +21,10 @@ void rng_setup(char *lab)
 //GSL_RNG_TYPE="taus" GSL_RNG_SEED=123 ./GDirect
 {
   label = strdup(lab);
+  if (_RAND_GSL) {
+      fprintf(stderr,"Trying to setup multiple instances of RNG %s\n",label);
+      return;
+  }
   fprintf(stderr,"Setting up RNG %s\n",label);
   FILE *dev;
 
@@ -55,7 +59,13 @@ void rng_setup_seed(unsigned int seed, char *lab)
 
 void rng_destroy()
 {
+  if (!_RAND_GSL) {
+      fprintf(stderr,"RNG %s is already destroyed\n",label);
+      return;
+  }
+
   gsl_rng_free(_RAND_GSL);
+  _RAND_GSL = 0;
 
   fprintf(stderr,"RNG %s destroyed\n",label);
 }
