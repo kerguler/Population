@@ -124,6 +124,7 @@ typedef hazpar (*parameters)(double, double);
 typedef double (*hazard)(unsigned int, number, double);
 typedef double (*calculator)(hazard, unsigned int, number, number, double, const number *);
 typedef number (*stepper)(number, unsigned int, number);
+typedef void (*funqpar)(const number *, const number, double *);
 
 typedef struct arbiter_st *arbiter;
 struct arbiter_st {
@@ -131,11 +132,13 @@ struct arbiter_st {
     hazard fun_haz;
     calculator fun_calc;
     stepper fun_step;
+    funqpar fun_q_par;
 };
 
 arbiter arbiter_init(parameters, hazard, calculator, stepper);
 
 number acc_stepper(number, unsigned int, number);
+number age_stepper(number, unsigned int, number);
 
 double acc_hazard_calc(hazard, unsigned int, number, number, double, const number *);
 double age_const_calc(hazard, unsigned int, number, number, double, const number *);

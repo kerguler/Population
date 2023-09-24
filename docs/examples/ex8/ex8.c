@@ -13,7 +13,7 @@ double custom(hazard hfun, unsigned int d, number q, number k, double theta, con
 
 void fun_transfer(number *key, number num, void *pop) {
     number q[3] = {
-        {.i=key[0].i+1},
+        {.i=key[0].i},
         numZERO,
         {.i=key[2].i+1}
     };

@@ -101,6 +101,7 @@ arbiter arbiter_init(parameters fun_pars, hazard fun_haz, calculator fun_calc, s
     step->fun_haz = fun_haz;
     step->fun_calc = fun_calc;
     step->fun_step = fun_step;
+    step->fun_q_par = 0;
     return step;
 }
 
@@ -601,14 +602,16 @@ void spop2_step(population pop, double *par, number *survived, number *completed
     member elm = NULL, tmp = NULL, poptablenext = NULL;
     number *q2 = (number *)malloc(sz);
     number n2 = numZERO;
+    double par_elm[2] = {0.0, 0.0};
     unsigned int dev;
     double p;
     //
-    for (i=0; i<pop->nkey; i++) completed[i] = numZERO;
+    for (i=0; i < pop->nkey; i++) completed[i] = numZERO;
     //
     for (i=0; i < pop->nkey; i++) {
         (*survived) = numZERO;
         // 
+        // Calculate process duration parameters for all classes (fun_pars)
         switch (pop->numpars[i]) {
             case 0:
                 hp = pop->arbiters[i]->fun_pars(0.0, 0.0);
@@ -630,6 +633,7 @@ void spop2_step(population pop, double *par, number *survived, number *completed
         if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) continue;
         //
         poptablenext = NULL;
+        // Repeat for all classes (may create new classes)
         HASH_ITER(hh, pop->members, elm, tmp) {
             if (!memcmp(&(elm->num),&numZERO,sizeof(number))) continue;
             if (pop->stoch)
@@ -637,11 +641,19 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             else
                 (*survived).d += elm->num.d;
             //
+            // Calculate class-specific hp (if applicable)
+            if (pop->arbiters[i]->fun_q_par) {
+                pop->arbiters[i]->fun_q_par(elm->key, elm->num, par_elm);
+                hp = pop->arbiters[i]->fun_pars(par_elm[0],par_elm[1]);
+            }
+            //
+            // Repeat until the current class is exhausted
             for (dev=0; memcmp(&(elm->num),&numZERO,sizeof(number)); ) {
                 memcpy(q2, elm->key, sz);
+                // Take a step (fun_step)
                 if (pop->arbiters[i]->fun_step)
                     q2[i] = (pop->types[i] == ACC_ARBITER) && (hp.k.i < 1) ? numACCTHR : pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
-                //
+                // Remove the class if completed
                 if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) {
                     if (popdone) {
                         spop2_add(popdone[i], q2, elm->num);
@@ -654,8 +666,10 @@ void spop2_step(population pop, double *par, number *survived, number *completed
                         (*survived).d -= elm->num.d;
                     }
                     elm->num = numZERO;
-                } else {
+                } else { // Deal with the rest
+                    // Calculate the fraction to proceed (fun_calc, fun_haz)
                     p = pop->arbiters[i]->fun_calc(pop->arbiters[i]->fun_haz, dev, q2[i], hp.k, hp.theta, elm->key);
+                    // Remove from the class (update_stoch / update_det)
                     pop->fun_update(p, &(elm->num), &n2);
                     //
                     if (pop->types[i] == AGE_ARBITER) {

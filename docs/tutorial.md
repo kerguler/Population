@@ -210,7 +210,7 @@ Overall, the script to model the dynamics is given below.
 
     void fun_transfer(number *key, number num, void *pop) {
         number q[3] = {
-            {.i=key[0].i+1},
+            {.i=key[0].i},
             numZERO,
             {.i=key[2].i+1}
         };
@@ -270,11 +270,100 @@ At each step, `spop2_step` returns the following
 The script adds all individuals completing a gonotrophic cycle (`popdone[1]`) back to `pop` one by one. While doing so, their status indicators are updated manually.
 
 - `num` individuals are added
-- Mortality indicator is iterated normally (`key[0] + 1`)
+- Mortality indicator is trannsferred as is (`key[0]`: the first process already has a stepper) *(Editted in v0.1.0)*
 - Egg development indicator is reset (`numZERO` is the 0 value of `number`)
 - Ovipositioning indicator is incremented (`key[2] + 1`)
 
 ![Mortality, development, and ovipositioning](figures/gonotrophic_cycle_w_mortality.png)
+
+## Gonotrophic cycle with key-dependent parameters
+*This is new in v0.1.0*
+
+This recently added feature helps us simplify the above example a bit. By default, we deal with uniform properties across a population. Namely, the mean and standard deviation of development applies to all sub-groups, but each sub-group positions itself at a different level of completion.
+
+In the example above, we used the hazard function (`fun_calc`) to access sub-group keys (`qkey`) and define specific lifetimes for each. Here we will use the `fun_q_par` function, which calculates mean and standard deviation for each group.
+
+We redefine the `custom` function as follows.
+
+```c
+void custom(const number *qkey, const number num, double *par) {
+    par[0] = 480.0 - (qkey[2].i > 4 ? 240.0 : 48.0 * qkey[2].i);
+    par[1] = 0.1 * par[0];
+}
+```
+
+It takes the following as parameters.
+
+- `qkey` is the array of status indicators
+- `num` is the number of individuals in the group
+- `par` is the array of parameter(s) specific for the process chosen (mean and standard deviation could be the outputs of the function)
+
+Here, we choose `AGE_GAMMA`, which takes $2$ parameters by default (mean and st.dev.). We reset these with `pop->numpars[0] = 0` and link `custom` with `pop->arbiters[0]->fun_q_par` to switch from population-wide parameters to group-specific ones.
+
+The overall script is given below, which produces an output identical to that of the previous section.
+```c
+void custom(const number *qkey, const number num, double *par) {
+    par[0] = 480.0 - (qkey[2].i > 4 ? 240.0 : 48.0 * qkey[2].i);
+    par[1] = 0.1 * par[0];
+}
+
+void fun_transfer(number *key, number num, void *pop) {
+    number q[3] = {
+        {.i=key[0].i},
+        numZERO,
+        {.i=key[2].i+1}
+    };
+    spop2_add(*(population *)pop, q, num);
+}
+
+void sim(char stoch) {
+    if (stoch)
+        spop2_random_init();
+
+    int i, j;
+
+    char arbiters[4] = {AGE_GAMMA, AGE_GAMMA, AGE_CUSTOM, STOP};
+    population pop = spop2_init(arbiters, stoch);
+
+    population popdone[3];
+    for (i=0; i<3; i++)
+        popdone[i] = spop2_init(arbiters, stoch);
+
+    pop->arbiters[0]->fun_q_par = custom;
+    pop->numpars[0] = 0;
+    //
+    pop->arbiters[2]->fun_step = 0;
+
+    number key[3] = {numZERO, numZERO, numZERO};
+    number num;
+    if (stoch == STOCHASTIC) 
+        num.i = 1000;
+    else
+        num.d = 1000.0;
+    spop2_add(pop, key, num);
+
+    if (stoch == STOCHASTIC)
+        printf("%d,%d\n",0,0);
+    else
+        printf("%d,%g\n",0,0.0);
+
+    number size, completed[3];
+    double par[2] = {50.0, 10.0};
+
+    for (i=0; i<480; i++) {
+        spop2_step(pop, par, &size, completed, popdone);
+        if (stoch == STOCHASTIC)
+            printf("%d,%d\n",i+1,completed[1].i);
+        else
+            printf("%d,%g\n",i+1,completed[1].d);
+
+        spop2_foreach(popdone[1], fun_transfer, (void *)(&pop));
+
+        for (j=0; j<3; j++)
+            spop2_empty(&popdone[j]);
+    }
+}
+```
 
 # Case studies
 
