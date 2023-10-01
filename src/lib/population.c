@@ -543,6 +543,23 @@ number spop2_size(population pop) {
     return sz;
 }
 
+number spop2_count(population pop, boolean check) {
+    number sz = numZERO;
+    member elm, tmp;
+    if (pop->stoch) {
+        HASH_ITER(hh, pop->members, elm, tmp) {
+            if (check(elm->key))
+                sz.i += elm->num.i;
+        }    
+    } else {
+        HASH_ITER(hh, pop->members, elm, tmp) {
+            if (check(elm->key))
+                sz.d += elm->num.d;
+        }    
+    }
+    return sz;
+}
+
 number spop2_remove(population pop, number *key, double frac) {
     member qnt = NULL;
     HASH_FIND(hh, pop->members, key, pop->nkey * sizeof(number), qnt);

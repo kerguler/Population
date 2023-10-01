@@ -212,11 +212,13 @@ void spop2_set_eps(double);
 void spop2_set_purge(unsigned, double);
 
 typedef void (*transfer)(number *, number, void *);
+typedef char (*boolean)(number *);
 
 population spop2_init(char *, char);
 void spop2_free(population *);
 void spop2_empty(population *);
 number spop2_size(population);
+number spop2_count(population, boolean);
 number spop2_remove(population, number *, double);
 char spop2_add(population, number *, number);
 char spop2_addpop(population, population);
