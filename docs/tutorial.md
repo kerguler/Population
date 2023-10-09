@@ -174,7 +174,7 @@ The mortality process, on the other hand, is defined with a `custom` function an
     }
 ```
 
-With this function, we override an internal mechanism used by all other processes to calculate the probability of exit (need this be due to mortality, development, or something else) from the `sPop2` population. This generic functional form takes the following parameters.
+With this function, we override an internal mechanism used by all other processes to calculate the probability of exit from the `sPop2` population. This way, we can link one process to another (mortality, development, or something else) if necessary. This generic functional form takes the following parameters.
 
  - `hfun` is a function to calculate the cumulative probability density of an exit event. It may use some of the other parameters to do so.
  - `d` refers to the number of days (more correctly time steps) elapsed in `sPop2`.

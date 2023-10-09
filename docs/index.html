@@ -475,10 +475,10 @@ the following.</p>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> a<span class="op">;</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
 <p>With this function, we override an internal mechanism used by all
-other processes to calculate the probability of exit (need this be due
-to mortality, development, or something else) from the
-<code>sPop2</code> population. This generic functional form takes the
-following parameters.</p>
+other processes to calculate the probability of exit from the
+<code>sPop2</code> population. This way, we can link one process to
+another (mortality, development, or something else) if necessary. This
+generic functional form takes the following parameters.</p>
 <ul>
 <li><code>hfun</code> is a function to calculate the cumulative
 probability density of an exit event. It may use some of the other
