@@ -113,6 +113,13 @@ void arbiter_free(arbiter *arbiter) {
  * Stepper routines
 \* ----------------------------------------------------------- */
 
+number fix_stepper(number q, unsigned int d, number k) {
+    number q2 = q;
+    if (d)
+        q2.d = popsize_round(q2.d + k.d);
+    return q2;
+}
+
 number acc_stepper(number q, unsigned int d, number k) {
     number q2 = q;
     if (d)
@@ -154,7 +161,7 @@ double age_custom_calc(hazard heval, unsigned int d, number q, number k, double 
 
 hazpar acc_fixed_pars(double devmn, double devsd) {
     hazpar hz;
-    hz.k.i = round(devmn);
+    hz.k.d = 1.0 / devmn;
     hz.theta = 1.0;
     hz.stay = TRUE;
     return hz;
@@ -452,7 +459,7 @@ population spop2_init(char *arbiters, char stoch) {
         pop->types[i] = pop->arbicodes[i];
         switch (pop->arbicodes[i]) {
             case ACC_FIXED:
-                pop->arbiters[i] = arbiter_init(acc_fixed_pars, acc_fixed_haz, acc_hazard_calc, acc_stepper);
+                pop->arbiters[i] = arbiter_init(acc_fixed_pars, acc_fixed_haz, acc_hazard_calc, fix_stepper);
                 pop->types[i] = ACC_ARBITER;
                 pop->numpars[i] = 1;
                 break;
@@ -670,6 +677,7 @@ void spop2_step(population pop, double *par, number *survived, number *completed
                 // Take a step (fun_step)
                 if (pop->arbiters[i]->fun_step)
                     q2[i] = (pop->types[i] == ACC_ARBITER) && (hp.k.i < 1) ? numACCTHR : pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
+                //
                 // Remove the class if completed
                 if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) {
                     if (popdone) {
@@ -714,8 +722,8 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             }
         }
         //
+        if (pop->members) spop2_empty(&pop);
         if (poptablenext) {
-            if (pop->members) spop2_empty(&pop);
             pop->members = poptablenext;
         }
     }

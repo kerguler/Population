@@ -56,3 +56,5 @@ src/*.la
 src/*.lai
 src/*.o
 src/*.dylib
+
+.vscode

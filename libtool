@@ -1,5 +1,5 @@
 #! /bin/sh
-# Generated automatically by config.status (population) 0.1.1
+# Generated automatically by config.status (population) 0.1.2
 # Libtool was configured on host kamilerguler.lan:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 
@@ -66,14 +66,14 @@ ECHO="printf %s\\n"
 PATH_SEPARATOR=":"
 
 # The host system.
-host_alias=x86_64-apple-darwin13.4.0
-host=x86_64-apple-darwin13.4.0
-host_os=darwin13.4.0
+host_alias=
+host=arm-apple-darwin22.6.0
+host_os=darwin22.6.0
 
 # The build system.
-build_alias=x86_64-apple-darwin13.4.0
-build=x86_64-apple-darwin13.4.0
-build_os=darwin13.4.0
+build_alias=
+build=arm-apple-darwin22.6.0
+build_os=darwin22.6.0
 
 # A sed program that does not truncate output.
 SED="/usr/bin/sed"
@@ -91,7 +91,7 @@ EGREP="/usr/bin/grep -E"
 FGREP="/usr/bin/grep -F"
 
 # A BSD- or MS-compatible name lister.
-NM="x86_64-apple-darwin13.4.0-nm"
+NM="/opt/local/bin/nm -B"
 
 # Whether we need soft or hard links.
 LN_S="ln -s"
@@ -142,7 +142,7 @@ DLLTOOL="false"
 sharedlib_from_linklib_cmd="printf %s\\n"
 
 # The archiver.
-AR="x86_64-apple-darwin13.4.0-ar"
+AR="ar"
 
 # Flags to create an archive.
 AR_FLAGS="cru"
@@ -151,10 +151,10 @@ AR_FLAGS="cru"
 archiver_list_spec=""
 
 # A symbol stripping program.
-STRIP="x86_64-apple-darwin13.4.0-strip"
+STRIP="strip"
 
 # Commands used to install an old-style archive.
-RANLIB="x86_64-apple-darwin13.4.0-ranlib"
+RANLIB="ranlib"
 old_postinstall_cmds="chmod 644 \$oldlib~\$RANLIB \$tool_oldlib"
 old_postuninstall_cmds=""
 
@@ -165,28 +165,28 @@ lock_old_archive_extraction=yes
 LTCC="gcc"
 
 # LTCC compiler flags.
-LTCFLAGS="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -isystem /Users/kamil/anaconda3/include"
+LTCFLAGS=""
 
 # Take the output of nm and produce a listing of raw symbols and C names.
-global_symbol_pipe="sed -n -e 's/^.*[	 ]\\([BCDEGRST][BCDEGRST]*\\)[	 ][	 ]*_\\([_A-Za-z][_A-Za-z0-9]*\\)\$/\\1 _\\2 \\2/p' | sed '/ __gnu_lto/d'"
+global_symbol_pipe="sed -n -e 's/^.*[	 ]\\([ABCDGIRSTW][ABCDGIRSTW]*\\)[	 ][	 ]*_\\([_A-Za-z][_A-Za-z0-9]*\\)\$/\\1 _\\2 \\2/p' | sed '/ __gnu_lto/d'"
 
 # Transform the output of nm in a proper C declaration.
-global_symbol_to_cdecl="sed -n -e 's/^T .* \\(.*\\)\$/extern int \\1();/p' -e 's/^[BCDEGRST][BCDEGRST]* .* \\(.*\\)\$/extern char \\1;/p'"
+global_symbol_to_cdecl="sed -n -e 's/^T .* \\(.*\\)\$/extern int \\1();/p' -e 's/^[ABCDGIRSTW][ABCDGIRSTW]* .* \\(.*\\)\$/extern char \\1;/p'"
 
 # Transform the output of nm into a list of symbols to manually relocate.
 global_symbol_to_import=""
 
 # Transform the output of nm in a C name address pair.
-global_symbol_to_c_name_address="sed -n -e 's/^: \\(.*\\) .*\$/  {\"\\1\", (void *) 0},/p' -e 's/^[BCDEGRST][BCDEGRST]* .* \\(.*\\)\$/  {\"\\1\", (void *) \\&\\1},/p'"
+global_symbol_to_c_name_address="sed -n -e 's/^: \\(.*\\) .*\$/  {\"\\1\", (void *) 0},/p' -e 's/^[ABCDGIRSTW][ABCDGIRSTW]* .* \\(.*\\)\$/  {\"\\1\", (void *) \\&\\1},/p'"
 
 # Transform the output of nm in a C name address pair when lib prefix is needed.
-global_symbol_to_c_name_address_lib_prefix="sed -n -e 's/^: \\(.*\\) .*\$/  {\"\\1\", (void *) 0},/p' -e 's/^[BCDEGRST][BCDEGRST]* .* \\(lib.*\\)\$/  {\"\\1\", (void *) \\&\\1},/p' -e 's/^[BCDEGRST][BCDEGRST]* .* \\(.*\\)\$/  {\"lib\\1\", (void *) \\&\\1},/p'"
+global_symbol_to_c_name_address_lib_prefix="sed -n -e 's/^: \\(.*\\) .*\$/  {\"\\1\", (void *) 0},/p' -e 's/^[ABCDGIRSTW][ABCDGIRSTW]* .* \\(lib.*\\)\$/  {\"\\1\", (void *) \\&\\1},/p' -e 's/^[ABCDGIRSTW][ABCDGIRSTW]* .* \\(.*\\)\$/  {\"lib\\1\", (void *) \\&\\1},/p'"
 
 # The name lister interface.
 nm_interface="BSD nm"
 
 # Specify filename containing input files for $NM.
-nm_file_list_spec=""
+nm_file_list_spec="@"
 
 # The root where to search for dependent libraries,and where our libraries should be installed.
 lt_sysroot=
@@ -210,13 +210,13 @@ MANIFEST_TOOL=":"
 DSYMUTIL="dsymutil"
 
 # Tool to change global to local symbols on Mac OS X.
-NMEDIT="x86_64-apple-darwin13.4.0-nmedit"
+NMEDIT="nmedit"
 
 # Tool to manipulate fat objects and archives on Mac OS X.
-LIPO="x86_64-apple-darwin13.4.0-lipo"
+LIPO="lipo"
 
 # ldd/readelf like tool for Mach-O binaries on Mac OS X.
-OTOOL="x86_64-apple-darwin13.4.0-otool"
+OTOOL="otool"
 
 # ldd/readelf like tool for 64 bit Mach-O binaries on Mac OS X 10.4.
 OTOOL64=":"
@@ -282,7 +282,7 @@ finish_eval=""
 hardcode_into_libs=no
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/12.0.0  /usr/local/lib"
+sys_lib_search_path_spec="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0  /usr/local/lib"
 
 # Detected run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/usr/local/lib /lib /usr/lib"
@@ -300,12 +300,12 @@ dlopen_self=unknown
 dlopen_self_static=unknown
 
 # Commands to strip libraries.
-old_striplib="x86_64-apple-darwin13.4.0-strip -S"
-striplib="x86_64-apple-darwin13.4.0-strip -x"
+old_striplib="strip -S"
+striplib="strip -x"
 
 
 # The linker used to build libraries.
-LD="x86_64-apple-darwin13.4.0-ld"
+LD="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld"
 
 # How to create reloadable object files.
 reload_flag=" -r"
@@ -357,8 +357,8 @@ old_archive_from_new_cmds=""
 old_archive_from_expsyms_cmds=""
 
 # Commands used to build a shared archive.
-archive_cmds="\$CC -dynamiclib \$allow_undefined_flag -o \$lib \$libobjs \$deplibs \$compiler_flags -install_name \$rpath/\$soname \$verstring \$single_module"
-archive_expsym_cmds="sed 's|^|_|' < \$export_symbols > \$output_objdir/\$libname-symbols.expsym~\$CC -dynamiclib \$allow_undefined_flag -o \$lib \$libobjs \$deplibs \$compiler_flags -install_name \$rpath/\$soname \$verstring \$single_module \$wl-exported_symbols_list,\$output_objdir/\$libname-symbols.expsym"
+archive_cmds="\$CC -dynamiclib \$allow_undefined_flag -o \$lib \$libobjs \$deplibs \$compiler_flags -install_name \$rpath/\$soname \$verstring "
+archive_expsym_cmds="sed 's|^|_|' < \$export_symbols > \$output_objdir/\$libname-symbols.expsym~\$CC -dynamiclib \$allow_undefined_flag -o \$lib \$libobjs \$deplibs \$compiler_flags -install_name \$rpath/\$soname \$verstring  \$wl-exported_symbols_list,\$output_objdir/\$libname-symbols.expsym"
 
 # Commands used to build a loadable module if different from building
 # a shared archive.
@@ -369,7 +369,7 @@ module_expsym_cmds="sed -e 's|^|_|' < \$export_symbols > \$output_objdir/\$libna
 with_gnu_ld="no"
 
 # Flag that allows shared libraries with undefined symbols to be built.
-allow_undefined_flag="\$wl-undefined \${wl}dynamic_lookup"
+allow_undefined_flag="\$wl-flat_namespace \$wl-undefined \${wl}suppress"
 
 # Flag that enforces no undefined symbols.
 no_undefined_flag=""
