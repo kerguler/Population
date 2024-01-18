@@ -1,0 +1,327 @@
+<!doctype html>
+<html >
+<head>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!--[if lt IE 9]>
+                <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+        <![endif]-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+
+    <!-- <link rel="stylesheet" type="text/css" href="template.css" /> -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/template.css" />
+
+    <link href="https://vjs.zencdn.net/5.4.4/video-js.css" rel="stylesheet" />
+
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+    <!-- <script type='text/javascript' src='menu/js/jquery.cookie.js'></script> -->
+    <!-- <script type='text/javascript' src='menu/js/jquery.hoverIntent.minified.js'></script> -->
+    <!-- <script type='text/javascript' src='menu/js/jquery.dcjqaccordion.2.7.min.js'></script> -->
+
+    <!-- <link href="menu/css/skins/blue.css" rel="stylesheet" type="text/css" /> -->
+    <!-- <link href="menu/css/skins/graphite.css" rel="stylesheet" type="text/css" /> -->
+    <!-- <link href="menu/css/skins/grey.css" rel="stylesheet" type="text/css" /> -->
+  
+    <!-- <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+        
+  
+    <!-- <script src="script.js"></script> -->
+  
+    <!-- <script src="jquery.sticky-kit.js "></script> -->
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.cookie.js'></script>
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.hoverIntent.minified.js'></script>
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.dcjqaccordion.2.7.min.js'></script>
+
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/blue.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/graphite.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/grey.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/ryangrose/easy-pandoc-templates@948e28e5/css/elegant_bootstrap.css" rel="stylesheet" type="text/css" />
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+    <script src="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/script.js"></script>
+  
+    <script src="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/jquery.sticky-kit.js"></script>
+    <meta name="generator" content="pandoc" />
+  <title>Population: the new generation population dynamics model with a dynamic population structure</title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+
+    
+    <div class="navbar navbar-static-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <span class="doc-title">Population: the new generation
+population dynamics model with a dynamic population structure</span>
+        <ul class="nav pull-right doc-info">
+                            </ul>
+      </div>
+    </div>
+  </div>
+    <div class="container">
+    <div class="row">
+            <div id="TOC" class="span3">
+        <div class="well toc">
+
+        <ul>
+        <li><a href="#the-origin-of-the-population-algorithm"
+        id="toc-the-origin-of-the-population-algorithm">The Origin of
+        the Population algorithm</a>
+        <ul>
+        <li><a href="#the-matrix-population-model-mpm"
+        id="toc-the-matrix-population-model-mpm">The Matrix Population
+        Model (MPM)</a>
+        <ul>
+        <li><a href="#age-structured-population-dynamics-leslie-matrix"
+        id="toc-age-structured-population-dynamics-leslie-matrix">Age-structured
+        population dynamics (Leslie matrix)</a></li>
+        <li><a href="#degree-day-dd-development"
+        id="toc-degree-day-dd-development">Degree-day (DD)
+        development</a></li>
+        <li><a href="#development-with-renewal-processes"
+        id="toc-development-with-renewal-processes">Development with
+        renewal processes</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+
+        </div>
+      </div>
+            <div class="span9">
+      <h1 id="the-origin-of-the-population-algorithm">The Origin of the
+Population algorithm</h1>
+<p>In this section, I describe structured population modelling and its
+links with the canonical Matrix Population Models (MPM) and the Degree
+Day (DD) approach. the dynamically-structured matrix population model
+step-by-step starting from the canonical Matrix Population Model (MPM)
+and step-by-step arriving at the sPop model and its more contemporary
+derivatives.</p>
+<h2 id="the-matrix-population-model-mpm">The Matrix Population Model
+(MPM)</h2>
+<p>The matrix population modelling approach involves matrix algebra to
+project the state of a population to the next time point (Caswell2001).
+According to this, a population is structured into a set of stages
+and/or within-stage age classes, and a projection matrix is constructed
+to describe the expected change in each stage/class during a time
+step.</p>
+<h3 id="age-structured-population-dynamics-leslie-matrix">Age-structured
+population dynamics (Leslie matrix)</h3>
+<p><span class="math display">$$
+  M(n,\tau) = \left[
+  \begin{array}{cccccc}
+    P_0     &amp;            F_1 &amp; F_2         &amp; \cdots &amp;
+F_{n-1}   &amp; F_n\\
+    G_0        &amp;         P_1 &amp; 0 &amp; \cdots &amp; 0 &amp; 0\\
+    0        &amp;           G_1  &amp;        P_2 &amp; \cdots &amp; 0
+&amp; 0\\
+    \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp;
+\vdots           &amp; \vdots\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp;
+P_{n-1} &amp; 0\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp;
+G_{n-1} &amp; P_n\\
+  \end{array}
+\right],
+$$</span></p>
+<p><span class="math display">$$
+  M(n,\tau) = \left[
+  \begin{array}{cccccc}
+    p     &amp;            F_1 &amp; F_2         &amp; \cdots &amp;
+F_{n-1}   &amp; F_n\\
+    p        &amp;         p &amp; 0 &amp; \cdots &amp; 0 &amp; 0\\
+    0        &amp;           p  &amp;        p &amp; \cdots &amp; 0
+&amp; 0\\
+    \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp;
+\vdots           &amp; \vdots\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp; p
+&amp; 0\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp; p
+&amp; p\\
+  \end{array}
+\right],
+$$</span></p>
+<h3 id="degree-day-dd-development">Degree-day (DD) development</h3>
+<p>DD process assumes that there is a lower temperature threshold for
+development, and each day spent under each degree above this threshold
+accummulates heat contributing to progress development. For instance, 2
+days spent under the average condition of 12<sup>o</sup>C, when a
+threshold of 10<sup>o</sup>C is assumed, 4 DD worth of development
+accumulates.</p>
+<p>At the end of the process, when a certain amount of degree-days
+accumulate, all which attains this state completes development and moves
+to the next stage simultaneously and instantly.</p>
+<p>Since DD accumulation is on a continous domain, it cannot be readily
+represented using MPM. Instead, the state of development by the time
+<span class="math inline"><em>t</em></span> can be represented as</p>
+<p><span class="math display">$$
+    D_0^t = \sum_{i=0}^{t}DD_t, \text{where}\, DD_0 = 0,
+$$</span></p>
+<p>where <span
+class="math inline"><em>D</em><sub>0</sub><sup><em>t</em></sup></span>
+is the total amount of degree day accumulated from day 0 until <span
+class="math inline"><em>t</em></span> and <span
+class="math inline"><em>D</em><em>D</em><sub><em>t</em></sub></span> is
+the degree day accumulated specifically at time <span
+class="math inline"><em>t</em></span>.</p>
+<p>The equation implicitly ignores mortality, as it deals with the state
+of development, however, one could describe life processes, such as
+mortality or fecundity, based on the DD accumulated,</p>
+<p><span
+class="math display"><em>N</em><sub><em>t</em> + 1</sub> = <em>P</em>(<em>D</em><sub>0</sub><sup><em>t</em></sup>)<em>N</em><sub><em>t</em></sub> + <em>F</em>(<em>D</em><sub>0</sub><sup><em>t</em></sup>),</span></p>
+<p>where <span
+class="math inline"><em>N</em><sub><em>t</em></sub></span> represents
+population size at time <span class="math inline"><em>t</em></span>, and
+<span class="math inline"><em>P</em></span> and <span
+class="math inline"><em>F</em></span> are functions of the DD
+accumulated by <span class="math inline"><em>t</em></span>, representing
+survival and fecundity, respectively.</p>
+<p>This equation assumes that all individuals have been subjected to the
+same conditions from <span class="math inline"><em>t</em> = 0</span>.
+But the new individuals, generated due to fecundity, would not
+accumulate the same DD as the old ones.</p>
+<p>This requires an extra dimension in the matrix to indicate the time
+of entry of each individual.</p>
+<p>If we assume that this is a closed system and that all individuals
+were the same age initially,</p>
+<p>Up to this point, no population structure is assumed, however, one
+would not be restricted to do so. The accumulation of DD is independent
+of the population structure. If <span
+class="math inline"><em>N</em></span> is composed of individuals of
+different ages, the progression of DD will be apparent as one moves from
+the youngest to the oldest individual.</p>
+<p><span class="math display">$$
+  M(n,\tau) = \left[
+  \begin{array}{ccccccc}
+    0       &amp;         F(DD_t) &amp; F(DD_t) &amp; \cdots &amp;
+F(DD_t)   &amp; F(DD_t) &amp; 0\\
+    P(DD_t) &amp;         0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp;
+0\\
+    0        &amp;        P(DD_t) &amp;        0 &amp; \cdots &amp; 0
+&amp; 0 &amp; 0\\
+    \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp; \vdots
+&amp; \vdots &amp; \vdots\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp; 0
+&amp; 0 &amp; 0\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp;
+P(DD_t) &amp; 0 &amp; 0\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp; 0
+&amp; P(DD_t) &amp; 1\\
+  \end{array}
+\right],
+$$</span></p>
+<p><span class="math display">$$
+  M(n,\tau) = \left[
+  \begin{array}{ccccccc}
+    0       &amp;         F(DD_1) &amp; F(DD_2) &amp; \cdots &amp;
+F(DD_{n-1})   &amp; F(DD_n) &amp; 0\\
+    P(DD_0) &amp;         0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp;
+0\\
+    0        &amp;        P(DD_1) &amp;        0 &amp; \cdots &amp; 0
+&amp; 0 &amp; 0\\
+    \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp; \vdots
+&amp; \vdots &amp; \vdots\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp; 0
+&amp; 0 &amp; 0\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp;
+P(DD_{n-1}) &amp; 0 &amp; 0\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp; 0
+&amp; P(DD_n) &amp; 1\\
+  \end{array}
+\right],
+$$</span></p>
+<p>Why don’t we get rid of the age-dimension and keep track of the DD
+accumulated? So, the dimensions of the matrix will be DD accumulated,
+but this is a continuous value.</p>
+<p>Instead of DD, what if we keep track of a discrete quantity that
+accumulates at a rate depending on heat accummulation?</p>
+<p>Discretisation is inevitable for numerical simulations. So, why not
+do it now?</p>
+<p>When discretised, the equation looks quite similar to the
+accumulative process.</p>
+<p><span class="math display">$$
+  M(n,\tau) = \left[
+  \begin{array}{llllll}
+    p\,f(0) &amp; F_1 &amp; F_2 &amp; \cdots &amp; F_{k-1} &amp; F_k\\
+    p\,f(1) &amp;  p\,f(0) &amp; 0 &amp; \cdots &amp; 0 &amp; 0\\
+    p\,f(2) &amp;  p\,f(1) &amp; p\,f(0) &amp; \cdots &amp; 0 &amp; 0\\
+    \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp;
+\vdots           &amp; \vdots\\
+    p\,f(k-1) &amp; p\,f(k-2) &amp; p\,f(k-3) &amp; \cdots &amp; p\,f(0)
+&amp; 0\\
+    p\,f(k)   &amp; p\,f(k-1) &amp; p\,f(k-2) &amp; \cdots &amp; p\,f(1)
+&amp; p\,f(0)\\
+  \end{array}
+\right],
+$$</span></p>
+<p>where M represents the DD at time <span
+class="math inline"><em>t</em></span>, <span
+class="math inline"><em>f</em>(<em>d</em>)</span> is the
+probability/rate of accumulating <span
+class="math inline"><em>d</em></span> degree days in one iteration, from
+<span class="math inline"><em>t</em> − 1</span> to <span
+class="math inline"><em>t</em></span>, and <span
+class="math inline"><em>k</em></span> is the integer analogue of the
+total amount of degree days required for development.</p>
+<h3 id="development-with-renewal-processes">Development with renewal
+processes</h3>
+<p>Here, we derive the projection matrix for a special case of
+accumulative development with the deterministic assumption. By fixing
+the number of pseudo-stages to <span
+class="math inline"><em>k</em></span>, we eliminate the need to employ
+the development indicator <span class="math inline"><em>q</em></span>,
+and structure the population into <span
+class="math inline"><em>k</em></span> pseudo-stages, <span
+class="math inline"><em>n</em><sub>0</sub>…<em>n</em><sub><em>k</em> − 1</sub></span>,
+and <span class="math inline">1</span> additional stage, <span
+class="math inline"><em>u</em></span>, to receive the individuals
+completing development. By doing so, we map the development stages onto
+the projection matrix, and proceed to account for transitions from one
+pseudo-stage to multiple others.</p>
+<p>To calculate the expected number of pseudo-stages one individual
+accumulates in one step, we use the cumulative density function
+describing the probability of accumulating <span
+class="math inline"><em>i</em></span> random renewal events in a single
+time step, <span
+class="math inline"><em>F</em>(<em>i</em>) = <em>F</em>(<em>i</em>,<em>θ</em>)</span>
+(see Methods). For instance, an individual stays in a pseudo-stage with
+rate <span class="math inline"><em>F</em>(0)</span>, progresses to the
+next with rate <span
+class="math inline"><em>F</em>(1) − <em>F</em>(0)</span>, and skips one
+to reach the second pseudo-stage with rate <span
+class="math inline"><em>F</em>(2) − <em>F</em>(1)</span>. Consequently,
+the projection matrix, <span
+class="math inline"><em>M</em>(<em>n</em>,<em>τ</em>)</span>, can be
+written as</p>
+<p><span class="math display">$$
+  M(n,\tau) = \left[
+  \begin{array}{ccccccc}
+    F(0)      &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0\\
+    F(1)-F(0) &amp;         F(0) &amp; 0 &amp; \cdots &amp; 0 &amp; 0
+&amp; 0\\
+    F(2)-F(1) &amp;    F(1)-F(0) &amp; F(0) &amp; \cdots &amp; 0 &amp; 0
+&amp; 0\\
+    \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp; \vdots
+&amp; \vdots &amp; \vdots\\
+    F(k-1)-F(k-2) &amp; F(k-2)-F(k-1) &amp; F(k-3)-F(k-2) &amp; \cdots
+&amp; F(1)-F(0) &amp; F(0) &amp; 0\\
+    1-F(k-1)      &amp; 1-F(k-2)      &amp; 1-F(k-3) &amp; \cdots &amp;
+1-F(1) &amp; 1-F(0) &amp; 1\\
+  \end{array}
+\right],
+$$</span></p>
+<p>where <span
+class="math inline"><em>n</em> = [<em>n</em><sub>0</sub>,<em>n</em><sub>1</sub>,⋯,<em>n</em><sub><em>k</em> − 1</sub>,<em>u</em>]<sup><em>T</em></sup></span>,
+<span class="math inline"><em>n</em><sub><em>i</em></sub></span> is the
+<span
+class="math inline"><em>i</em><sup><em>t</em><em>h</em></sup></span>
+pseudo-stage, and <span class="math inline"><em>u</em></span> is the
+subsequent development stage.</p>
+            </div>
+    </div>
+  </div>
+  <script src="https://vjs.zencdn.net/5.4.4/video.js"></script>
+
+</body>
+</html>

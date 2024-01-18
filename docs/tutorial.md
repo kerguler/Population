@@ -98,7 +98,7 @@ The sPop2 framework allows for [age-dependent](https://doi.org/10.12688/f1000res
 | ACC_ERLANG  | devmn, devsd | Erlang-distributed accumulative process   |
 | ACC_PASCAL  | devmn, devsd | Pascal-distributed accumulative process   |
 | ACC_FIXED   | devmn | Fixed-duration accumulative process   |
-| AGE_FIXED   | devmn | Pascal-distributed age-dependent process   |
+| AGE_FIXED   | devmn | Fixed-duration age-dependent process   |
 | NOAGE_CONST | prob | Constant-rate age-independent process   |
 | AGE_CONST   | prob | Constant-rate age-dependent process   |
 | AGE_GAMMA   | devmn, devsd | Gamma-distributed age-dependent process   |

@@ -115,7 +115,7 @@ void arbiter_free(arbiter *arbiter) {
 
 number fix_stepper(number q, unsigned int d, number k) {
     number q2 = q;
-    if (d)
+    if (k.d)
         q2.d = popsize_round(q2.d + k.d);
     return q2;
 }
