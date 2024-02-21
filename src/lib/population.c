@@ -510,6 +510,7 @@ population spop2_init(char *arbiters, char stoch) {
         }
     }
     //
+    pop->size = numZERO;
     pop->members = NULL;
     return pop;
 }
@@ -533,21 +534,26 @@ void spop2_empty(population *pop) {
         HASH_DEL((*pop)->members, elm);
         member_free(elm);
     }
+    (*pop)->size = numZERO;
 }
 
 number spop2_size(population pop) {
-    number sz = numZERO;
+    return pop->size;
+}
+
+number spop2_size_force(population pop) {
+    pop->size = numZERO;
     member elm, tmp;
     if (pop->stoch) {
         HASH_ITER(hh, pop->members, elm, tmp) {
-            sz.i += elm->num.i;
+            pop->size.i += elm->num.i;
         }    
     } else {
         HASH_ITER(hh, pop->members, elm, tmp) {
-            sz.d += elm->num.d;
+            pop->size.d += elm->num.d;
         }    
     }
-    return sz;
+    return pop->size;
 }
 
 number spop2_count(population pop, boolean check) {
@@ -576,9 +582,11 @@ number spop2_remove(population pop, number *key, double frac) {
         if (pop->stoch) {
             ret.i = gsl_ran_binomial(RANDOM, frac, ret.i);
             qnt->num.i -= ret.i;
+            pop->size.i -= ret.i;
         } else {
             ret.d *= frac;
             qnt->num.d -= ret.d;
+            pop->size.d -= ret.d;
         }
         //
         if (!memcmp(&(qnt->num), &numZERO, sizeof(number))) {
@@ -615,7 +623,8 @@ void spop2_foreach(population pop, transfer fun, void *opt) {
     member elm, tmp;
     HASH_ITER(hh, pop->members, elm, tmp) {
         fun(elm->key, elm->num, opt);
-    }    
+    }
+    // TO DO: This should trigger "size" update
 }
 
 void spop2_step(population pop, double *par, number *survived, number *completed, population *popdone) {

@@ -202,6 +202,7 @@ struct population_st {
     char *types;
     char *arbicodes;
     unsigned int *numpars;
+    number size;
     update fun_update;
     arbiter *arbiters;
     member members;
@@ -217,6 +218,7 @@ typedef char (*boolean)(number *);
 population spop2_init(char *, char);
 void spop2_free(population *);
 void spop2_empty(population *);
+number spop2_size_force(population);
 number spop2_size(population);
 number spop2_count(population, boolean);
 number spop2_remove(population, number *, double);
