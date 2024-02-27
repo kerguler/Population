@@ -207,6 +207,8 @@ struct population_st {
     member members;
 };
 
+double spop2_version(void);
+
 void spop2_set_eps(double);
 
 void spop2_set_purge(unsigned, double);
