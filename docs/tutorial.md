@@ -365,6 +365,55 @@ void sim(char stoch) {
 }
 ```
 
+## Harvesting a population
+*This is new in v0.1.4*
+
+The `spop2_foreach` function above transfers the entire population, class by class, into the target population. To extract only a fraction of each class, maybe a fraction based on the sub-group key, we can use the newly introduced `spop2_harvest` function.
+
+Here, we create three populations with an age-structured development process and initiate the first one with $10$ individuals. At each iteration, we transfer some of the individuals completing their development to the second population, and move the rest to the third population.
+
+```c
+    char arbiters[2] = {AGE_GAMMA, STOP};
+    population pop[3];
+    pop[0] = spop2_init(arbiters, stoch);
+    pop[1] = spop2_init(arbiters, stoch);
+    pop[2] = spop2_init(arbiters, stoch);
+    population popdone = spop2_init(arbiters, stoch);
+
+    number key = numZERO;
+    number num = {.d = 10.0};
+    spop2_add(pop[0], &key, num);
+
+    printf("%d,%g,%g,%g\n",0,0.0,0.0,0.0);
+
+    number size, completed;
+    double par[2] = {120.0, 24.0};
+
+    for (i=0; i<240; i++) {
+        spop2_step(pop[0], par, &size, &completed, &popdone);
+        spop2_harvest(popdone, pop[1], fun_harvest);
+        spop2_harvest(popdone, pop[2], fun_rest);
+
+        printf("%d,%g,%g,%g\n",i+1,spop2_size(pop[0]).d,spop2_size(pop[1]).d,spop2_size(pop[2]).d);
+
+        spop2_empty(&popdone);
+    }
+```
+
+To demonstrate variable transfer rates, based on sub-group keys, we define `fun_harvest` to switch the target from the second to the third population at around 5 and a half days. Finally, the `fun_rest` function is used to transfer the rest of the ones developed to the third population by default.
+
+```c
+double fun_harvest(number *key) {
+    return key[0].i > 136 ? 1.0 : 0.0;
+}
+
+double fun_rest(number *key) {
+    return 1.0;
+}
+```
+
+![Determining fate after development](figures/development_harvest.png)
+
 # Case studies
 
 ## Nicholson's blowflies

@@ -595,6 +595,52 @@ number spop2_remove(population pop, number *key, double frac) {
     return numZERO;
 }
 
+number spop2_harvest(population pop, population yield, harvest fun) {
+    double frac = 0.0;
+    number size = numZERO;
+    member elm, tmp;
+    //
+    if (pop->stoch) {
+        HASH_ITER(hh, pop->members, elm, tmp) {
+            number ret = elm->num;
+            frac = fun(elm->key);
+            //
+            ret.i = gsl_ran_binomial(RANDOM, frac, ret.i);
+            elm->num.i -= ret.i;
+            //
+            if (ret.i) {
+                spop2_add(yield, elm->key, ret);
+                size.i += ret.i;
+            }
+            //
+            if (!memcmp(&(elm->num), &numZERO, sizeof(number))) {
+                HASH_DEL(pop->members, elm);
+                member_free(elm);
+            }
+        }
+    } else {
+        HASH_ITER(hh, pop->members, elm, tmp) {
+            number ret = elm->num;
+            frac = fun(elm->key);
+            //
+            ret.d *= frac;
+            elm->num.d -= ret.d;
+            //
+            if (ret.d) {
+                spop2_add(yield, elm->key, ret);
+                size.d += ret.d;
+            }
+            //
+            if (!memcmp(&(elm->num), &numZERO, sizeof(number))) {
+                HASH_DEL(pop->members, elm);
+                member_free(elm);
+            }
+        }
+    }
+    //
+    return size;
+}
+
 char spop2_add(population pop, number *key_raw, number num) {
     if (!((pop->stoch && num.i > 0) || (!pop->stoch && num.d > 0.0))) return 0;
     //
