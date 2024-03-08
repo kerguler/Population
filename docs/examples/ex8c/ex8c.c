@@ -3,63 +3,88 @@
 #include <math.h>
 #include "population.h"
 
-double fun_harvest(number *key) {
-    return key[0].i > 136 ? 1.0 : 0.0;
+#define N 5
+#define NEWAGE TRUE
+#define STOCH FALSE
+
+void fun_harvest(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i = NEWAGE ? 0 : key[0].i;
+    *frac = 0.5;
 }
 
-double fun_rest(number *key) {
-    return 1.0;
+void fun_rest(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i = key[0].i;
+    *frac = 1.0;
 }
 
 void sim(char stoch) {
-    int i;
+    int i, j;
 
     char arbiters[2] = {AGE_GAMMA, STOP};
-    population pop[3];
-    pop[0] = spop2_init(arbiters, stoch);
-    pop[1] = spop2_init(arbiters, stoch);
-    pop[2] = spop2_init(arbiters, stoch);
-    population popdone = spop2_init(arbiters, stoch);
+    population *pop = (population *)malloc(N * sizeof(population));
+    population *popdone = (population *)malloc(N * sizeof(population));
+    for (j=0; j<N; j++) {
+        pop[j] = spop2_init(arbiters, stoch);
+        popdone[j] = spop2_init(arbiters, stoch);
+    }
 
     number key = numZERO;
     number num;
     if (stoch == STOCHASTIC) 
-        num.i = 10;
+        num.i = 100;
     else
-        num.d = 10.0;
+        num.d = 100.0;
     spop2_add(pop[0], &key, num);
 
+    printf("0");
     if (stoch == STOCHASTIC)
-        printf("%d,%d,%d,%d\n",0,0,0,0);
+        for (j=0; j<N; j++)
+            printf(",0");
     else
-        printf("%d,%g,%g,%g\n",0,0.0,0.0,0.0);
+        for (j=0; j<N; j++)
+            printf(",0.0");
+    printf("\n");
 
-    number size, completed;
-    double par[2] = {120.0, 24.0};
+    number size[N], completed[N];
+    double par[2] = {48.0, 6.0};
 
     for (i=0; i<240; i++) {
-        spop2_step(pop[0], par, &size, &completed, &popdone);
-        spop2_harvest(popdone, pop[1], fun_harvest);
-        spop2_harvest(popdone, pop[2], fun_rest);
+        for (j=0; j<(N-2); j++) {
+            spop2_step(pop[j], par, &size[j], &completed[j], &popdone[j]);
+        }
+        for (j=0; j<(N-2); j++) {
+            spop2_harvest(popdone[j], pop[j+1], fun_harvest);
+            spop2_harvest(popdone[j], pop[j+2], fun_rest);
+        }
 
+        printf("%d",i+1);
         if (stoch == STOCHASTIC)
-            printf("%d,%d,%d,%d\n",i+1,spop2_size(pop[0]).i,spop2_size(pop[1]).i,spop2_size(pop[2]).i);
+            for (j=0; j<N; j++)
+                printf(",%d",spop2_size(pop[j]).i);
         else
-            printf("%d,%g,%g,%g\n",i+1,spop2_size(pop[0]).d,spop2_size(pop[1]).d,spop2_size(pop[2]).d);
+            for (j=0; j<N; j++)
+                printf(",%g",spop2_size(pop[j]).d);
+        printf("\n");
 
-        spop2_empty(&popdone);
+        for (j=0; j<N; j++) {
+            spop2_empty(&popdone[j]);
+        }
+    }
+
+    for (j=0; j<N; j++) {
+        spop2_free(&pop[j]);
+        spop2_free(&popdone[j]);
     }
 }
 
 int main(int attr, char *avec[]) {
-    if (FALSE)
-        sim(DETERMINISTIC);
-    else {
+    if (STOCH) {
         spop2_random_init();
         int i;
         for (i=0; i<100; i++)
             sim(STOCHASTIC);
-    }
+    } else
+        sim(DETERMINISTIC);
 
     return 0;
 }

@@ -370,46 +370,64 @@ void sim(char stoch) {
 
 The `spop2_foreach` function above transfers the entire population, class by class, into the target population. To extract only a fraction of each class, maybe a fraction based on the sub-group key, we can use the newly introduced `spop2_harvest` function.
 
-Here, we create three populations with an age-structured development process and initiate the first one with $10$ individuals. At each iteration, we transfer some of the individuals completing their development to the second population, and move the rest to the third population.
+Here, we create $N$ populations with age-structured development time and initiate the first one with $100$ individuals. At each iteration, we transfer a fraction of the individuals completing their development into the second population, and move the rest to the third population, and so on. We collect all individuals in the last two populations.
+
+We can use the following macro definitions to set $N$, stochasticity, and the age of the transferred population.
+```c
+#define N 5
+#define STOCH FALSE
+#define NEWAGE FALSE
+```
+
+By default, we transfer the individuals as they are, with their final ages kept intact. Due to their age, however, they are quickly removed from the sub=sequent population as well. By setting the macro `NEWAGE` as `TRUE`, we reset the age of the transferred and provide them with the opportunity to go through another development process from the start.
+
+```c
+void fun_harvest(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i = NEWAGE ? 0 : key[0].i;
+    *frac = 0.5;
+}
+
+void fun_rest(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i = key[0].i;
+    *frac = 1.0;
+}
+```
+
+The functions `fun_harvest` and `fun_rest` handle transfers to the subsequent populations, while setting the fraction of individuals to be transferred (`frac`) and their sub-group keys (`newkey`).
 
 ```c
     char arbiters[2] = {AGE_GAMMA, STOP};
-    population pop[3];
-    pop[0] = spop2_init(arbiters, stoch);
-    pop[1] = spop2_init(arbiters, stoch);
-    pop[2] = spop2_init(arbiters, stoch);
-    population popdone = spop2_init(arbiters, stoch);
+    population *pop = (population *)malloc(N * sizeof(population));
+    population *popdone = (population *)malloc(N * sizeof(population));
+    for (j=0; j<N; j++) {
+        pop[j] = spop2_init(arbiters, stoch);
+        popdone[j] = spop2_init(arbiters, stoch);
+    }
 
     number key = numZERO;
-    number num = {.d = 10.0};
+    number num = {.d = 100.0};
     spop2_add(pop[0], &key, num);
 
-    printf("%d,%g,%g,%g\n",0,0.0,0.0,0.0);
-
-    number size, completed;
-    double par[2] = {120.0, 24.0};
+    number size[N], completed[N];
+    double par[2] = {48.0, 6.0};
 
     for (i=0; i<240; i++) {
-        spop2_step(pop[0], par, &size, &completed, &popdone);
-        spop2_harvest(popdone, pop[1], fun_harvest);
-        spop2_harvest(popdone, pop[2], fun_rest);
+        for (j=0; j<(N-2); j++)
+            spop2_step(pop[j], par, &size[j], &completed[j], &popdone[j]);
 
-        printf("%d,%g,%g,%g\n",i+1,spop2_size(pop[0]).d,spop2_size(pop[1]).d,spop2_size(pop[2]).d);
+        for (j=0; j<(N-2); j++) {
+            spop2_harvest(popdone[j], pop[j+1], fun_harvest);
+            spop2_harvest(popdone[j], pop[j+2], fun_rest);
+        }
 
-        spop2_empty(&popdone);
+        for (j=0; j<N; j++)
+            spop2_empty(&popdone[j]);
     }
-```
 
-To demonstrate variable transfer rates, based on sub-group keys, we define `fun_harvest` to switch the target from the second to the third population at around 5 and a half days. Finally, the `fun_rest` function is used to transfer the rest of the ones developed to the third population by default.
-
-```c
-double fun_harvest(number *key) {
-    return key[0].i > 136 ? 1.0 : 0.0;
-}
-
-double fun_rest(number *key) {
-    return 1.0;
-}
+    for (j=0; j<N; j++) {
+        spop2_free(&pop[j]);
+        spop2_free(&popdone[j]);
+    }
 ```
 
 ![Determining fate after development](figures/development_harvest.png)

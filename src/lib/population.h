@@ -214,7 +214,7 @@ void spop2_set_eps(double);
 void spop2_set_purge(unsigned, double);
 
 typedef void (*transfer)(number *, number, void *);
-typedef double (*harvest)(number *);
+typedef void (*harvest)(number *, number, number *, double *);
 typedef char (*boolean)(number *);
 
 population spop2_init(char *, char);

@@ -597,20 +597,21 @@ number spop2_remove(population pop, number *key, double frac) {
 
 number spop2_harvest(population pop, population yield, harvest fun) {
     double frac = 0.0;
+    number *key_raw = (number *)calloc(pop->nkey, sizeof(number));
     number size = numZERO;
     member elm, tmp;
     //
     if (pop->stoch) {
         HASH_ITER(hh, pop->members, elm, tmp) {
-            number ret = elm->num;
-            frac = fun(elm->key);
+            number num = elm->num;
+            fun(elm->key, elm->num, key_raw, &frac);
             //
-            ret.i = gsl_ran_binomial(RANDOM, frac, ret.i);
-            elm->num.i -= ret.i;
+            num.i = gsl_ran_binomial(RANDOM, frac, num.i);
+            elm->num.i -= num.i;
             //
-            if (ret.i) {
-                spop2_add(yield, elm->key, ret);
-                size.i += ret.i;
+            if (num.i) {
+                spop2_add(yield, key_raw, num);
+                size.i += num.i;
             }
             //
             if (!memcmp(&(elm->num), &numZERO, sizeof(number))) {
@@ -620,15 +621,15 @@ number spop2_harvest(population pop, population yield, harvest fun) {
         }
     } else {
         HASH_ITER(hh, pop->members, elm, tmp) {
-            number ret = elm->num;
-            frac = fun(elm->key);
+            number num = elm->num;
+            fun(elm->key, elm->num, key_raw, &frac);
             //
-            ret.d *= frac;
-            elm->num.d -= ret.d;
+            num.d *= frac;
+            elm->num.d -= num.d;
             //
-            if (ret.d) {
-                spop2_add(yield, elm->key, ret);
-                size.d += ret.d;
+            if (num.d) {
+                spop2_add(yield, key_raw, num);
+                size.d += num.d;
             }
             //
             if (!memcmp(&(elm->num), &numZERO, sizeof(number))) {
@@ -637,6 +638,8 @@ number spop2_harvest(population pop, population yield, harvest fun) {
             }
         }
     }
+    //
+    free(key_raw);
     //
     return size;
 }
