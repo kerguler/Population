@@ -77,6 +77,10 @@ population dynamics model with a dynamic population structure</span>
         <li><a href="#age-structured-population-dynamics-leslie-matrix"
         id="toc-age-structured-population-dynamics-leslie-matrix">Age-structured
         population dynamics (Leslie matrix)</a></li>
+        <li><a
+        href="#stage-structured-population-dynamics-lefkovitch-matrix"
+        id="toc-stage-structured-population-dynamics-lefkovitch-matrix">Stage-structured
+        population dynamics (Lefkovitch matrix)</a></li>
         <li><a href="#degree-day-dd-development"
         id="toc-degree-day-dd-development">Degree-day (DD)
         development</a></li>
@@ -111,38 +115,51 @@ population dynamics (Leslie matrix)</h3>
 <p><span class="math display">$$
   M(n,\tau) = \left[
   \begin{array}{cccccc}
+    f_0     &amp;            f_1 &amp; f_2         &amp; \cdots &amp;
+f_{n-2}   &amp; f_{n-1} \\
+    s_0      &amp;         0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0\\
+    0        &amp;           s_1  &amp;        0 &amp; \cdots &amp; 0
+&amp; 0\\
+    \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp;
+\vdots           &amp; \vdots\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp; 0
+&amp; 0\\
+    0        &amp;            0  &amp;        0 &amp; \cdots &amp;
+s_{n-2} &amp; 0\\
+  \end{array}
+\right],
+$$</span></p>
+<h3
+id="stage-structured-population-dynamics-lefkovitch-matrix">Stage-structured
+population dynamics (Lefkovitch matrix)</h3>
+<p><span class="math display">$$
+  M(n,\tau) = \left[
+  \begin{array}{cccccc}
     P_0     &amp;            F_1 &amp; F_2         &amp; \cdots &amp;
-F_{n-1}   &amp; F_n\\
+F_{n-2}   &amp; F_{n-1}\\
     G_0        &amp;         P_1 &amp; 0 &amp; \cdots &amp; 0 &amp; 0\\
     0        &amp;           G_1  &amp;        P_2 &amp; \cdots &amp; 0
 &amp; 0\\
     \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp;
 \vdots           &amp; \vdots\\
     0        &amp;            0  &amp;        0 &amp; \cdots &amp;
-P_{n-1} &amp; 0\\
+P_{n-2} &amp; 0\\
     0        &amp;            0  &amp;        0 &amp; \cdots &amp;
-G_{n-1} &amp; P_n\\
+G_{n-2} &amp; P_{n-1}\\
   \end{array}
 \right],
 $$</span></p>
-<p><span class="math display">$$
-  M(n,\tau) = \left[
-  \begin{array}{cccccc}
-    p     &amp;            F_1 &amp; F_2         &amp; \cdots &amp;
-F_{n-1}   &amp; F_n\\
-    p        &amp;         p &amp; 0 &amp; \cdots &amp; 0 &amp; 0\\
-    0        &amp;           p  &amp;        p &amp; \cdots &amp; 0
-&amp; 0\\
-    \vdots &amp; \vdots     &amp; \vdots    &amp; \ddots &amp;
-\vdots           &amp; \vdots\\
-    0        &amp;            0  &amp;        0 &amp; \cdots &amp; p
-&amp; 0\\
-    0        &amp;            0  &amp;        0 &amp; \cdots &amp; p
-&amp; p\\
-  \end{array}
-\right],
+<p><span class="math display">$$ P = \frac{q-q^n}{1-q^n} $$</span></p>
+<p><span class="math display">$$ G = \frac{(1-q)q^n}{1-q^n}
 $$</span></p>
 <h3 id="degree-day-dd-development">Degree-day (DD) development</h3>
+<p>This one shows how DD can be used to represent lifetime instead of
+development:</p>
+<p>Gómez NN, Venette RC, Gould JR, Winograd DF. A unified degree day
+model describes survivorship of Copitarsia corruda Pogue &amp; Simmons
+(Lepidoptera: Noctuidae) at different constant temperatures. Bull
+Entomol Res. 2009 Feb;99(1):65-72. doi: 10.1017/S0007485308006111. Epub
+2008 Nov 12. PMID: 19006579.</p>
 <p>DD process assumes that there is a lower temperature threshold for
 development, and each day spent under each degree above this threshold
 accummulates heat contributing to progress development. For instance, 2

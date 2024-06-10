@@ -12,30 +12,41 @@ The matrix population modelling approach involves matrix algebra to project the 
 $$
   M(n,\tau) = \left[
   \begin{array}{cccccc}
-    P_0     &            F_1 & F_2         & \cdots & F_{n-1}   & F_n\\
-    G_0        &         P_1 & 0 & \cdots & 0 & 0\\
-    0        &           G_1  &        P_2 & \cdots & 0 & 0\\
+    f_0     &            f_1 & f_2         & \cdots & f_{n-2}   & f_{n-1} \\
+    s_0      &         0 & 0 & \cdots & 0 & 0\\
+    0        &           s_1  &        0 & \cdots & 0 & 0\\
     \vdots & \vdots     & \vdots    & \ddots & \vdots           & \vdots\\
-    0        &            0  &        0 & \cdots & P_{n-1} & 0\\
-    0        &            0  &        0 & \cdots & G_{n-1} & P_n\\
+    0        &            0  &        0 & \cdots & 0 & 0\\
+    0        &            0  &        0 & \cdots & s_{n-2} & 0\\
   \end{array}
 \right],
 $$
+
+### Stage-structured population dynamics (Lefkovitch matrix)
 
 $$
   M(n,\tau) = \left[
   \begin{array}{cccccc}
-    p     &            F_1 & F_2         & \cdots & F_{n-1}   & F_n\\
-    p        &         p & 0 & \cdots & 0 & 0\\
-    0        &           p  &        p & \cdots & 0 & 0\\
+    P_0     &            F_1 & F_2         & \cdots & F_{n-2}   & F_{n-1}\\
+    G_0        &         P_1 & 0 & \cdots & 0 & 0\\
+    0        &           G_1  &        P_2 & \cdots & 0 & 0\\
     \vdots & \vdots     & \vdots    & \ddots & \vdots           & \vdots\\
-    0        &            0  &        0 & \cdots & p & 0\\
-    0        &            0  &        0 & \cdots & p & p\\
+    0        &            0  &        0 & \cdots & P_{n-2} & 0\\
+    0        &            0  &        0 & \cdots & G_{n-2} & P_{n-1}\\
   \end{array}
 \right],
 $$
 
+$$ P = \frac{q-q^n}{1-q^n} $$
+
+$$ G = \frac{(1-q)q^n}{1-q^n} $$
+
 ### Degree-day (DD) development
+
+This one shows how DD can be used to represent lifetime instead of development:
+
+Gómez NN, Venette RC, Gould JR, Winograd DF. A unified degree day model describes survivorship of Copitarsia corruda Pogue & Simmons (Lepidoptera: Noctuidae) at different constant temperatures. Bull Entomol Res. 2009 Feb;99(1):65-72. doi: 10.1017/S0007485308006111. Epub 2008 Nov 12. PMID: 19006579.
+
 
 DD process assumes that there is a lower temperature threshold for development, and each day spent under each degree above this threshold accummulates heat contributing to progress development. For instance, 2 days spent under the average condition of 12<sup>o</sup>C, when a threshold of 10<sup>o</sup>C is assumed, 4 DD worth of development accumulates.
 

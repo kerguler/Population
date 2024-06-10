@@ -35,7 +35,7 @@
 number numACCTHR = {.d=1.0};
 
 double spop2_version() {
-    return 0.13;
+    return 0.16;
 }
 
 /* ----------------------------------------------------------- *\
@@ -597,7 +597,7 @@ number spop2_remove(population pop, number *key, double frac) {
 
 number spop2_harvest(population pop, population yield, harvest fun) {
     double frac = 0.0;
-    number *key_raw = (number *)calloc(pop->nkey, sizeof(number));
+    number *key_raw = (number *)calloc(yield->nkey, sizeof(number));
     number size = numZERO;
     member elm, tmp;
     //
