@@ -104,6 +104,8 @@ The sPop2 framework allows for [age-dependent](https://doi.org/10.12688/f1000res
 | AGE_GAMMA   | devmn, devsd | Gamma-distributed age-dependent process   |
 | AGE_NBINOM  | devmn, devsd | Negative binomial-distributed age-dependent process   |
 | AGE_CUSTOM  | User-defined hazard function and stepper | Age-dependent or accumulative stepping with a user-defined hazard function |
+| ACC_MEMORY  | - | Accumulative process keyholder |
+| AGE_MEMORY  | - | Age-dependent process keyholder |
 
 | Age-dependent | Accumulative |
 | :---        |    ---: |

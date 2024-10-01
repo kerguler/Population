@@ -83,6 +83,8 @@ double nbinom_dist_prob(double, double, unsigned int);
 #define AGE_NBINOM    7
 #define AGE_CUSTOM    8
 #define NOAGE_CONST   9
+#define ACC_MEMORY    10
+#define AGE_MEMORY    11
 
 #define ACC_ARBITER   0
 #define AGE_ARBITER   1

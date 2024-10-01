@@ -35,7 +35,7 @@
 number numACCTHR = {.d=1.0};
 
 double spop2_version() {
-    return 0.16;
+    return 0.17;
 }
 
 /* ----------------------------------------------------------- *\
@@ -164,15 +164,20 @@ double age_custom_calc(hazard heval, unsigned int d, number q, number k, double 
 \* ----------------------------------------------------------- */
 
 hazpar acc_fixed_pars(double devmn, double devsd) {
+    /*
+     * devmn: lifetime (will be converted to rate)
+     * devsd: not used
+     */
     hazpar hz;
+    hz.stay = TRUE;
     hz.k.d = 1.0 / devmn;
     hz.theta = 1.0;
-    hz.stay = TRUE;
     return hz;
 }
 
 hazpar acc_erlang_pars(double devmn, double devsd) {
     hazpar hz;
+    hz.stay = TRUE;
     hz.theta = pow(devsd,2) / devmn;
     double kd = devmn / hz.theta;
     if (kd != round(kd)) {
@@ -183,12 +188,12 @@ hazpar acc_erlang_pars(double devmn, double devsd) {
         // fprintf(stderr, "Rounding up k to %g to yield mean=%g and sd=%g\n", kd, m, s);
     }
     hz.k.i = (unsigned int)kd;
-    hz.stay = TRUE;
     return hz;
 }
 
 hazpar acc_pascal_pars(double devmn, double devsd) {
     hazpar hz;
+    hz.stay = TRUE;
     hz.theta = devmn / pow(devsd,2);
     if (hz.theta > 1.0 || hz.theta < 0.0) {
         fprintf(stderr, "Pascal cannot yield mean=%g and sd=%g\n",devmn,devsd);
@@ -200,49 +205,60 @@ hazpar acc_pascal_pars(double devmn, double devsd) {
         hz.theta = kd / (devmn + kd);
     }
     hz.k.i = (unsigned int)kd;
-    hz.stay = TRUE;
     return hz;
 }
 
+hazpar acc_no_pars(double devmn, double devsd) {
+    return noHazard;
+}
+
 hazpar age_fixed_pars(double devmn, double devsd) {
+    /*
+     * devmn: lifetime
+     * devsd: not used
+     */
     hazpar hz;
+    hz.stay = FALSE;
     hz.k.d = round(devmn);
     hz.theta = 1.0;
-    hz.stay = FALSE;
     return hz;
 }
 
 hazpar age_const_pars(double devmn, double devsd) {
     hazpar hz;
+    hz.stay = FALSE;
     hz.k.d = 1.0;
     hz.theta = min(1.0, max(0.0, devmn));
-    hz.stay = FALSE;
     return hz;
 }
 
 hazpar age_gamma_pars(double devmn, double devsd) {
     hazpar hz;
+    hz.stay = FALSE;
     hz.theta = pow(devsd,2) / devmn;
     hz.k.d = devmn / hz.theta;
-    hz.stay = FALSE;
     return hz;
 }
 
 hazpar age_nbinom_pars(double devmn, double devsd) {
     hazpar hz;
+    hz.stay = FALSE;
     hz.theta = devmn / pow(devsd,2);
     if (hz.theta > 1.0 || hz.theta < 0.0) {
         fprintf(stderr, "Negative binomial cannot yield mean=%g and sd=%g\n",devmn,devsd);
         exit(1);
     }
     hz.k.d = devmn * hz.theta / (1.0 - hz.theta);
-    hz.stay = FALSE;
     return hz;
 }
 
 hazpar age_custom_pars(double devmn, double devsd) {
     hazpar hz = {.k=numZERO, .theta=1.0, .stay=FALSE};
     return hz;
+}
+
+hazpar age_no_pars(double devmn, double devsd) {
+    return noHazard;
 }
 
 /* ----------------------------------------------------------- *\
@@ -506,6 +522,16 @@ population spop2_init(char *arbiters, char stoch) {
                 pop->arbiters[i] = arbiter_init(age_const_pars, age_const_haz, age_const_calc, 0);
                 pop->types[i] = AGE_ARBITER;
                 pop->numpars[i] = 1;
+                break;
+            case ACC_MEMORY:
+                pop->arbiters[i] = arbiter_init(acc_no_pars, 0, 0, 0);
+                pop->types[i] = ACC_ARBITER;
+                pop->numpars[i] = 0;
+                break;
+            case AGE_MEMORY:
+                pop->arbiters[i] = arbiter_init(age_no_pars, 0, 0, 0);
+                pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 0;
                 break;
             default:
                 fprintf(stderr, "Development time distribution %d not yet implemented\n", arbiters[i]);
