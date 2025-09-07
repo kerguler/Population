@@ -35,7 +35,7 @@
 number numACCTHR = {.d=1.0};
 
 double spop2_version() {
-    return 0.17;
+    return 0.18;
 }
 
 /* ----------------------------------------------------------- *\
@@ -733,7 +733,11 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             break;
         }
         // 
-        if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) continue;
+        if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) {
+            (*survived) = spop2_size(pop);
+            //
+            continue;
+        }
         //
         poptablenext = NULL;
         // Repeat for all classes (may create new classes)
