@@ -34,8 +34,8 @@
 
 number numACCTHR = {.d=1.0};
 
-double spop2_version() {
-    return 0.19;
+const char *spop2_version(void) {
+    return "0.1.10";
 }
 
 /* ----------------------------------------------------------- *\

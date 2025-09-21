@@ -209,7 +209,7 @@ struct population_st {
     member members;
 };
 
-double spop2_version(void);
+const char *spop2_version(void);
 
 void spop2_set_eps(double);
 

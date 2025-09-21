@@ -1,4 +1,4 @@
-AM_CFLAGS = -I$(top_srcdir)/src/lib -Wall
+AM_CFLAGS = -I$(top_srcdir)/src/lib -Wall -Wno-unused-variable
 
 AM_CFLAGS += $(GLIB_CFLAGS)
 
