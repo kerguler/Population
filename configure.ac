@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([Population], [0.1.10], [kerguler@gmail.com])
+AC_INIT([Population], [0.1.11], [kerguler@gmail.com])
 AC_CONFIG_SRCDIR([src/lib/population.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([1.9 foreign])
@@ -48,5 +48,6 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([floor pow strdup exp])
 
 AC_CONFIG_FILES([Makefile
-                 src/lib/Makefile])
+                 src/lib/Makefile
+                 population.pc])
 AC_OUTPUT

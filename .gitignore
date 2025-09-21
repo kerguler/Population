@@ -58,5 +58,3 @@ src/*.o
 src/*.dylib
 
 .vscode
-
-libtool

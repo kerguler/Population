@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: population
+Description: Population dynamics library
+Version: 0.1.11
+Cflags: -I${includedir}
+Libs: -L${libdir} -lpopulation -lgsl -lgslcblas -lm
