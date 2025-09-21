@@ -4,6 +4,7 @@
 #include <time.h>
 #include <math.h>
 #include <limits.h>
+#include <inttypes.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_sf_gamma.h>
 #include <gsl/gsl_cdf.h>
@@ -42,7 +43,7 @@ size_t gamma_mean_sd_mem = 0;
 
 void set_gamma_mem(uint64_t new_mem) {
     MAX_MEM = new_mem;
-    printf("Gamma hash memory is adjusted to %llu\n",MAX_MEM);
+    printf("Gamma hash memory is adjusted to %" PRIu64 "\n",(uint64_t)MAX_MEM);
 }
 
 void gamma_dist_destroy(void) {
