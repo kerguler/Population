@@ -436,7 +436,7 @@ The functions `fun_harvest` and `fun_rest` handle transfers to the subsequent po
 ![Determining fate after development](figures/development_harvest.png)
 
 ## Using the memory process
-*This is new in v0.6.0*
+*This is new in v0.2.0*
 
 The `MEMORY` process holds a real number in the memory of each sub process. It is used as in the following example:
 
