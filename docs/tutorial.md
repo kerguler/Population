@@ -106,6 +106,7 @@ The sPop2 framework allows for [age-dependent](https://doi.org/10.12688/f1000res
 | AGE_CUSTOM  | User-defined hazard function and stepper | Age-dependent or accumulative stepping with a user-defined hazard function |
 | ACC_MEMORY  | - | Accumulative process keyholder |
 | AGE_MEMORY  | - | Age-dependent process keyholder |
+| MEMORY  | - | Memory process |
 
 | Age-dependent | Accumulative |
 | :---        |    ---: |
@@ -433,6 +434,55 @@ The functions `fun_harvest` and `fun_rest` handle transfers to the subsequent po
 ```
 
 ![Determining fate after development](figures/development_harvest.png)
+
+## Using the memory process
+*This is new in v0.6.0*
+
+The `MEMORY` process holds a real number in the memory of each sub process. It is used as in the following example:
+
+```c
+    char arbiters[3] = {AGE_FIXED, MEMORY, STOP};
+    population pop = spop2_init(arbiters, DETERMINISTIC);
+    pop->arbiters[1]->fun_q_par = memorise;
+
+    number size, completed;
+
+    number key = numZERO;
+    number num = { .d = 1.0 };
+    spop2_add(pop, &key, num);
+
+    double par[1] = {10.0};
+
+    int i;
+    for (i=0; i<12; i++) {
+        spop2_step(pop, par, &size, &completed, 0);
+        spop2_printable(pop,i);
+    }
+
+    spop2_free(&pop);
+```
+
+The number to be memorised is processed by the custom parameter function as the first parameter of a dummy hazard function. The following version accumulates the reciprocal of age in memory:
+
+```c
+void memorise(const number *qkey, const number num, double *par) {
+    par[0] = qkey[1].d + 1.0 / qkey[0].i;
+}
+```
+
+The above should yield the following output:
+
+```bash
+0,1,1,1
+1,2,1.5,1
+2,3,1.83333,1
+3,4,2.08333,1
+4,5,2.28333,1
+5,6,2.45,1
+6,7,2.59286,1
+7,8,2.71786,1
+8,9,2.82897,1
+```
 
 # Case studies
 

@@ -85,9 +85,11 @@ double nbinom_dist_prob(double, double, unsigned int);
 #define NOAGE_CONST   9
 #define ACC_MEMORY    10
 #define AGE_MEMORY    11
+#define MEMORY        12
 
 #define ACC_ARBITER   0
 #define AGE_ARBITER   1
+#define NO_ARBITER    2
 
 /* ----------------------------------------------------------- *\
  * 
@@ -139,6 +141,7 @@ struct arbiter_st {
 
 arbiter arbiter_init(parameters, hazard, calculator, stepper);
 
+number memory_stepper(number, unsigned int, number);
 number acc_stepper(number, unsigned int, number);
 number age_stepper(number, unsigned int, number);
 
@@ -147,6 +150,7 @@ double age_const_calc(hazard, unsigned int, number, number, double, const number
 double age_hazard_calc(hazard, unsigned int, number, number, double, const number *);
 double age_custom_calc(hazard, unsigned int, number, number, double, const number *);
 
+hazpar memory_pars(double, double);
 hazpar acc_fixed_pars(double, double);
 hazpar acc_erlang_pars(double, double);
 hazpar acc_pascal_pars(double, double);

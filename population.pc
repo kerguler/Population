@@ -5,6 +5,6 @@ includedir=${prefix}/include
 
 Name: population
 Description: Population dynamics library
-Version: 0.1.11
+Version: 0.2.0
 Cflags: -I${includedir}
 Libs: -L${libdir} -lpopulation -lgsl -lgslcblas -lm

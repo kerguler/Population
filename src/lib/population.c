@@ -35,7 +35,7 @@
 number numACCTHR = {.d=1.0};
 
 const char *spop2_version(void) {
-    return "0.1.10";
+    return "0.2.0";
 }
 
 /* ----------------------------------------------------------- *\
@@ -99,7 +99,10 @@ void spop2_purge_members(population *pop) {
 /* ----------------------------------------------------------- *\
 \* ----------------------------------------------------------- */
 
-arbiter arbiter_init(parameters fun_pars, hazard fun_haz, calculator fun_calc, stepper fun_step) {
+arbiter arbiter_init(parameters fun_pars,  // desired parameters -> hazard-specific parameters
+                     hazard fun_haz,       // calculate hazard (exit probability)
+                     calculator fun_calc,  // calculate fraction of class to remove
+                     stepper fun_step) {   // iterate class indicators (e.g., age, fraction developed)
     arbiter step = (arbiter)malloc(sizeof(struct arbiter_st));
     step->fun_pars = fun_pars;
     step->fun_haz = fun_haz;
@@ -116,6 +119,10 @@ void arbiter_free(arbiter *arbiter) {
 /* ----------------------------------------------------------- *\
  * Stepper routines
 \* ----------------------------------------------------------- */
+
+number memory_stepper(number q, unsigned int d, number k) {
+    return k;
+}
 
 number fix_stepper(number q, unsigned int d, number k) {
     number q2 = q;
@@ -162,6 +169,18 @@ double age_custom_calc(hazard heval, unsigned int d, number q, number k, double 
 
 /* ----------------------------------------------------------- *\
 \* ----------------------------------------------------------- */
+
+hazpar memory_pars(double devmn, double devsd) {
+    /*
+     * devmn: value stored as double in hz.k.d
+     * devsd: not used
+     */
+    hazpar hz;
+    hz.stay = FALSE;
+    hz.k.d = devmn;
+    hz.theta = 1.0;
+    return hz;
+}
 
 hazpar acc_fixed_pars(double devmn, double devsd) {
     /*
@@ -362,10 +381,10 @@ void spop2_print(population pop) {
     HASH_ITER(hh, pop->members, elm, tmp) {
         printf("Member{ (");
         for (i = 0; i < pop->nkey; i++)
-            if (pop->types[i] == ACC_ARBITER)
-                printf("%s%g", i ? "," : "", elm->key[i].d);
-            else
+            if (pop->types[i] == AGE_ARBITER)
                 printf("%s%u", i ? "," : "", elm->key[i].i);
+            else
+                printf("%s%g", i ? "," : "", elm->key[i].d);
         if (pop->stoch)
             printf(") => %u }\n",elm->num.i);
         else
@@ -380,10 +399,10 @@ void spop2_printable(population pop, int tm) {
     HASH_ITER(hh, pop->members, elm, tmp) {
         printf("%d,", tm);
         for (i = 0; i < pop->nkey; i++)
-            if (pop->types[i] == ACC_ARBITER)
-                printf("%s%g", i ? "," : "", elm->key[i].d);
-            else
+            if (pop->types[i] == AGE_ARBITER)
                 printf("%s%u", i ? "," : "", elm->key[i].i);
+            else
+                printf("%s%g", i ? "," : "", elm->key[i].d);
         if (pop->stoch)
             printf(",%u\n",elm->num.i);
         else
@@ -531,6 +550,11 @@ population spop2_init(char *arbiters, char stoch) {
             case AGE_MEMORY:
                 pop->arbiters[i] = arbiter_init(age_no_pars, 0, 0, 0);
                 pop->types[i] = AGE_ARBITER;
+                pop->numpars[i] = 0;
+                break;
+            case MEMORY:
+                pop->arbiters[i] = arbiter_init(memory_pars, 0, 0, memory_stepper);
+                pop->types[i] = NO_ARBITER;
                 pop->numpars[i] = 0;
                 break;
             default:
@@ -733,7 +757,9 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             break;
         }
         // 
-        if (!memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) {
+        // Skip ACC_MEMORY and AGE_MEMORY processes
+        if (((pop->types[i] == ACC_ARBITER) || (pop->types[i] == AGE_ARBITER)) && 
+            !memcmp(&hp,&noHazard,sizeof(struct hazpar_st))) {
             (*survived) = spop2_size(pop);
             //
             continue;
@@ -758,11 +784,19 @@ void spop2_step(population pop, double *par, number *survived, number *completed
             for (dev=0; memcmp(&(elm->num),&numZERO,sizeof(number)); ) {
                 memcpy(q2, elm->key, sz);
                 // Take a step (fun_step)
-                if (pop->arbiters[i]->fun_step)
-                    q2[i] = (pop->types[i] == ACC_ARBITER) && (hp.k.i < 1) ? numACCTHR : pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
+                if (pop->arbiters[i]->fun_step) {
+                    if ((pop->types[i] == ACC_ARBITER) && (hp.k.i < 1))
+                        q2[i] = numACCTHR;
+                    else
+                        q2[i] = pop->arbiters[i]->fun_step(q2[i], dev, hp.k);
+                }
                 //
-                // Remove the class if completed
-                if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) {
+                // Handle MEMORY processes
+                if (pop->types[i] == NO_ARBITER) {
+                    if (memcmp(&(elm->num),&numZERO,sizeof(number)))
+                        key_add(&poptablenext, q2, elm->num, pop->nkey, pop->stoch); // Developing / surviving population
+                    elm->num = numZERO;
+                } else if (pop->types[i] == ACC_ARBITER ? q2[i].d >= ACCTHR : FALSE) { // Remove the class if completed
                     if (popdone) {
                         spop2_add(popdone[i], q2, elm->num);
                     }
